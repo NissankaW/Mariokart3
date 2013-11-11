@@ -1,0 +1,2243 @@
+
+main.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000ad0  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000004  00800060  00000ad0  00000b64  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000021  00800064  00800064  00000b68  2**0
+                  ALLOC
+  3 .stab         000006cc  00000000  00000000  00000b68  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  4 .stabstr      00000097  00000000  00000000  00001234  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .comment      0000002f  00000000  00000000  000012cb  2**0
+                  CONTENTS, READONLY
+  6 .debug_aranges 00000068  00000000  00000000  000012fa  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_info   00000e91  00000000  00000000  00001362  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 000005cd  00000000  00000000  000021f3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_line   00000484  00000000  00000000  000027c0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_frame  0000063c  00000000  00000000  00002c44  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_str    00000517  00000000  00000000  00003280  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_loc    00000acb  00000000  00000000  00003797  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_ranges 00000080  00000000  00000000  00004262  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	20 c0       	rjmp	.+64     	; 0x42 <__ctors_end>
+   2:	3a c0       	rjmp	.+116    	; 0x78 <__bad_interrupt>
+   4:	39 c0       	rjmp	.+114    	; 0x78 <__bad_interrupt>
+   6:	2e c4       	rjmp	.+2140   	; 0x864 <__vector_3>
+   8:	66 c3       	rjmp	.+1740   	; 0x6d6 <__vector_4>
+   a:	ff c3       	rjmp	.+2046   	; 0x80a <__vector_5>
+   c:	a4 c3       	rjmp	.+1864   	; 0x756 <__vector_6>
+   e:	d0 c3       	rjmp	.+1952   	; 0x7b0 <__vector_7>
+  10:	35 c3       	rjmp	.+1642   	; 0x67c <__vector_8>
+  12:	e1 c2       	rjmp	.+1474   	; 0x5d6 <__vector_9>
+  14:	56 c0       	rjmp	.+172    	; 0xc2 <__vector_10>
+  16:	30 c0       	rjmp	.+96     	; 0x78 <__bad_interrupt>
+  18:	2f c0       	rjmp	.+94     	; 0x78 <__bad_interrupt>
+  1a:	2e c0       	rjmp	.+92     	; 0x78 <__bad_interrupt>
+  1c:	e5 c0       	rjmp	.+458    	; 0x1e8 <__vector_14>
+  1e:	2c c0       	rjmp	.+88     	; 0x78 <__bad_interrupt>
+  20:	2b c0       	rjmp	.+86     	; 0x78 <__bad_interrupt>
+  22:	2a c0       	rjmp	.+84     	; 0x78 <__bad_interrupt>
+  24:	29 c0       	rjmp	.+82     	; 0x78 <__bad_interrupt>
+
+00000026 <TimerRTCPrescaleFactor>:
+  26:	00 00 01 00 08 00 20 00 40 00 80 00 00 01 00 04     ...... .@.......
+
+00000036 <TimerPrescaleFactor>:
+  36:	00 00 01 00 08 00 40 00 00 01 00 04                 ......@.....
+
+00000042 <__ctors_end>:
+  42:	11 24       	eor	r1, r1
+  44:	1f be       	out	0x3f, r1	; 63
+  46:	cf e5       	ldi	r28, 0x5F	; 95
+  48:	d4 e0       	ldi	r29, 0x04	; 4
+  4a:	de bf       	out	0x3e, r29	; 62
+  4c:	cd bf       	out	0x3d, r28	; 61
+
+0000004e <__do_copy_data>:
+  4e:	10 e0       	ldi	r17, 0x00	; 0
+  50:	a0 e6       	ldi	r26, 0x60	; 96
+  52:	b0 e0       	ldi	r27, 0x00	; 0
+  54:	e0 ed       	ldi	r30, 0xD0	; 208
+  56:	fa e0       	ldi	r31, 0x0A	; 10
+  58:	02 c0       	rjmp	.+4      	; 0x5e <__do_copy_data+0x10>
+  5a:	05 90       	lpm	r0, Z+
+  5c:	0d 92       	st	X+, r0
+  5e:	a4 36       	cpi	r26, 0x64	; 100
+  60:	b1 07       	cpc	r27, r17
+  62:	d9 f7       	brne	.-10     	; 0x5a <__do_copy_data+0xc>
+
+00000064 <__do_clear_bss>:
+  64:	20 e0       	ldi	r18, 0x00	; 0
+  66:	a4 e6       	ldi	r26, 0x64	; 100
+  68:	b0 e0       	ldi	r27, 0x00	; 0
+  6a:	01 c0       	rjmp	.+2      	; 0x6e <.do_clear_bss_start>
+
+0000006c <.do_clear_bss_loop>:
+  6c:	1d 92       	st	X+, r1
+
+0000006e <.do_clear_bss_start>:
+  6e:	a5 38       	cpi	r26, 0x85	; 133
+  70:	b2 07       	cpc	r27, r18
+  72:	e1 f7       	brne	.-8      	; 0x6c <.do_clear_bss_loop>
+  74:	24 d4       	rcall	.+2120   	; 0x8be <main>
+  76:	2a c5       	rjmp	.+2644   	; 0xacc <_exit>
+
+00000078 <__bad_interrupt>:
+  78:	c3 cf       	rjmp	.-122    	; 0x0 <__vectors>
+
+0000007a <rgb>:
+//Control the colour of the RGB LED
+enum colours {red, green, blue, purple, orange, aqua, white, off};
+void rgb(char c)
+{
+	//Turn all off
+	sbi(RGB_PORT, RED);
+  7a:	97 9a       	sbi	0x12, 7	; 18
+	sbi(RGB_PORT, GREEN);
+  7c:	96 9a       	sbi	0x12, 6	; 18
+	sbi(RGB_PORT, BLUE);
+  7e:	95 9a       	sbi	0x12, 5	; 18
+	
+	
+	if(c == red || c == purple || c==orange || c == white)
+  80:	88 23       	and	r24, r24
+  82:	31 f0       	breq	.+12     	; 0x90 <rgb+0x16>
+  84:	83 30       	cpi	r24, 0x03	; 3
+  86:	21 f0       	breq	.+8      	; 0x90 <rgb+0x16>
+  88:	84 30       	cpi	r24, 0x04	; 4
+  8a:	11 f0       	breq	.+4      	; 0x90 <rgb+0x16>
+  8c:	86 30       	cpi	r24, 0x06	; 6
+  8e:	09 f4       	brne	.+2      	; 0x92 <rgb+0x18>
+	{
+		cbi(RGB_PORT, RED);
+  90:	97 98       	cbi	0x12, 7	; 18
+	}
+	
+	if(c == green || c == aqua || c == orange || c == white)
+  92:	81 30       	cpi	r24, 0x01	; 1
+  94:	a1 f0       	breq	.+40     	; 0xbe <rgb+0x44>
+  96:	85 30       	cpi	r24, 0x05	; 5
+  98:	49 f0       	breq	.+18     	; 0xac <rgb+0x32>
+  9a:	84 30       	cpi	r24, 0x04	; 4
+  9c:	39 f0       	breq	.+14     	; 0xac <rgb+0x32>
+  9e:	86 30       	cpi	r24, 0x06	; 6
+  a0:	29 f0       	breq	.+10     	; 0xac <rgb+0x32>
+	{
+		cbi(RGB_PORT, GREEN);
+	}
+
+	if(c == blue || c == aqua || c == purple || c == white)
+  a2:	82 30       	cpi	r24, 0x02	; 2
+  a4:	51 f0       	breq	.+20     	; 0xba <rgb+0x40>
+  a6:	83 30       	cpi	r24, 0x03	; 3
+  a8:	41 f0       	breq	.+16     	; 0xba <rgb+0x40>
+  aa:	08 95       	ret
+		cbi(RGB_PORT, RED);
+	}
+	
+	if(c == green || c == aqua || c == orange || c == white)
+	{
+		cbi(RGB_PORT, GREEN);
+  ac:	96 98       	cbi	0x12, 6	; 18
+	}
+
+	if(c == blue || c == aqua || c == purple || c == white)
+  ae:	85 30       	cpi	r24, 0x05	; 5
+  b0:	21 f0       	breq	.+8      	; 0xba <rgb+0x40>
+  b2:	83 30       	cpi	r24, 0x03	; 3
+  b4:	11 f0       	breq	.+4      	; 0xba <rgb+0x40>
+  b6:	86 30       	cpi	r24, 0x06	; 6
+  b8:	c1 f7       	brne	.-16     	; 0xaa <rgb+0x30>
+	{
+		cbi(RGB_PORT, BLUE);
+  ba:	95 98       	cbi	0x12, 5	; 18
+  bc:	08 95       	ret
+		cbi(RGB_PORT, RED);
+	}
+	
+	if(c == green || c == aqua || c == orange || c == white)
+	{
+		cbi(RGB_PORT, GREEN);
+  be:	96 98       	cbi	0x12, 6	; 18
+  c0:	08 95       	ret
+
+000000c2 <__vector_10>:
+
+} 
+
+
+//unsigned char i = 0;
+ISR(SPI_STC_vect) {    
+  c2:	1f 92       	push	r1
+  c4:	0f 92       	push	r0
+  c6:	0f b6       	in	r0, 0x3f	; 63
+  c8:	0f 92       	push	r0
+  ca:	11 24       	eor	r1, r1
+  cc:	2f 93       	push	r18
+  ce:	3f 93       	push	r19
+  d0:	4f 93       	push	r20
+  d2:	5f 93       	push	r21
+  d4:	6f 93       	push	r22
+  d6:	7f 93       	push	r23
+  d8:	8f 93       	push	r24
+  da:	9f 93       	push	r25
+  dc:	af 93       	push	r26
+  de:	bf 93       	push	r27
+	setpoint = (((unsigned long)SPDR)*TOP_COUNT)/256;
+  e0:	2f b1       	in	r18, 0x0f	; 15
+  e2:	30 e0       	ldi	r19, 0x00	; 0
+  e4:	a0 e8       	ldi	r26, 0x80	; 128
+  e6:	bc e0       	ldi	r27, 0x0C	; 12
+  e8:	c7 d4       	rcall	.+2446   	; 0xa78 <__umulhisi3>
+  ea:	bb 27       	eor	r27, r27
+  ec:	a9 2f       	mov	r26, r25
+  ee:	98 2f       	mov	r25, r24
+  f0:	87 2f       	mov	r24, r23
+    if (setpoint > MAX_COUNT) {
+  f2:	89 3b       	cpi	r24, 0xB9	; 185
+  f4:	2b e0       	ldi	r18, 0x0B	; 11
+  f6:	92 07       	cpc	r25, r18
+  f8:	14 f0       	brlt	.+4      	; 0xfe <__vector_10+0x3c>
+        setpoint = MAX_COUNT;
+  fa:	88 eb       	ldi	r24, 0xB8	; 184
+  fc:	9b e0       	ldi	r25, 0x0B	; 11
+  fe:	90 93 65 00 	sts	0x0065, r25
+ 102:	80 93 64 00 	sts	0x0064, r24
+    }
+}
+ 106:	bf 91       	pop	r27
+ 108:	af 91       	pop	r26
+ 10a:	9f 91       	pop	r25
+ 10c:	8f 91       	pop	r24
+ 10e:	7f 91       	pop	r23
+ 110:	6f 91       	pop	r22
+ 112:	5f 91       	pop	r21
+ 114:	4f 91       	pop	r20
+ 116:	3f 91       	pop	r19
+ 118:	2f 91       	pop	r18
+ 11a:	0f 90       	pop	r0
+ 11c:	0f be       	out	0x3f, r0	; 63
+ 11e:	0f 90       	pop	r0
+ 120:	1f 90       	pop	r1
+ 122:	18 95       	reti
+
+00000124 <init>:
+
+
+void init(void)
+{
+	//Make outputs low
+	cbi(PWM_PORT, PWM_BIT);
+ 124:	c1 98       	cbi	0x18, 1	; 24
+	cbi(SD_PORT, SD_BIT); //CHANGED - used to be using PWM_BIT don't know why
+ 126:	94 98       	cbi	0x12, 4	; 18
+	
+	//Make outputs outputs
+	sbi(PWM_DDR, PWM_BIT);
+ 128:	b9 9a       	sbi	0x17, 1	; 23
+
+	//Pull-up switches
+	sbi(ESTOP_PORT, ESTOP_BIT);
+ 12a:	93 9a       	sbi	0x12, 3	; 18
+	sbi(BRAKE_PORT, BRAKE_BIT);
+ 12c:	92 9a       	sbi	0x12, 2	; 18
+	
+	//RGB Outputs
+	sbi(RGB_DDR, RED);
+ 12e:	8f 9a       	sbi	0x11, 7	; 17
+	sbi(RGB_DDR, GREEN);
+ 130:	8e 9a       	sbi	0x11, 6	; 17
+	sbi(RGB_DDR, BLUE);
+ 132:	8d 9a       	sbi	0x11, 5	; 17
+	
+	//RGB Off
+	sbi(RGB_PORT, RED);
+ 134:	97 9a       	sbi	0x12, 7	; 18
+	sbi(RGB_PORT, GREEN);
+ 136:	96 9a       	sbi	0x12, 6	; 18
+	sbi(RGB_PORT, BLUE);
+ 138:	95 9a       	sbi	0x12, 5	; 18
+	
+	//Initialise the ADC 
+	a2dInit();
+ 13a:	0f d0       	rcall	.+30     	; 0x15a <a2dInit>
+	
+	//Initialise timer 1
+	timer1Init();
+ 13c:	bd d0       	rcall	.+378    	; 0x2b8 <timer1Init>
+	timer1SetPrescaler(TIMER_CLK_DIV1);
+ 13e:	81 e0       	ldi	r24, 0x01	; 1
+ 140:	db d0       	rcall	.+438    	; 0x2f8 <timer1SetPrescaler>
+	timer1PWMInitICR(TOP_COUNT); //Enable PWM with top count
+ 142:	80 e8       	ldi	r24, 0x80	; 128
+ 144:	9c e0       	ldi	r25, 0x0C	; 12
+ 146:	f8 d1       	rcall	.+1008   	; 0x538 <timer1PWMInitICR>
+	timer1PWMAOn(); //Turn PWM on
+ 148:	1d d2       	rcall	.+1082   	; 0x584 <timer1PWMAOn>
+
+	// Set MISO as output, all others as input
+	sbi(SPI_DDR, MISO_BIT);
+ 14a:	bc 9a       	sbi	0x17, 4	; 23
+
+	// Set the clock phase
+	sbi(SPCR, CPHA);
+ 14c:	6a 9a       	sbi	0x0d, 2	; 13
+
+	// Enable the SPI
+	sbi(SPCR, SPE);
+ 14e:	6e 9a       	sbi	0x0d, 6	; 13
+
+	// Enable the SPI interrupt
+	sbi(SPCR, SPIE);
+ 150:	6f 9a       	sbi	0x0d, 7	; 13
+
+	rgb(green);
+ 152:	81 e0       	ldi	r24, 0x01	; 1
+ 154:	92 df       	rcall	.-220    	; 0x7a <rgb>
+
+	sei(); //Enable interupts
+ 156:	78 94       	sei
+ 158:	08 95       	ret
+
+0000015a <a2dInit>:
+// functions
+
+// initialize a2d converter
+void a2dInit(void)
+{
+	sbi(ADCSR, ADEN);				// enable ADC (turn on ADC power)
+ 15a:	37 9a       	sbi	0x06, 7	; 6
+	cbi(ADCSR, ADFR);				// default to single sample convert mode
+ 15c:	35 98       	cbi	0x06, 5	; 6
+}
+
+// configure A2D converter clock division (prescaling)
+void a2dSetPrescaler(unsigned char prescale)
+{
+	outb(ADCSR, ((inb(ADCSR) & ~ADC_PRESCALE_MASK) | prescale));
+ 15e:	86 b1       	in	r24, 0x06	; 6
+ 160:	88 7f       	andi	r24, 0xF8	; 248
+ 162:	86 60       	ori	r24, 0x06	; 6
+ 164:	86 b9       	out	0x06, r24	; 6
+}
+
+// configure A2D converter voltage reference
+void a2dSetReference(unsigned char ref)
+{
+	outb(ADMUX, ((inb(ADMUX) & ~ADC_REFERENCE_MASK) | (ref<<6)));
+ 166:	87 b1       	in	r24, 0x07	; 7
+ 168:	8f 73       	andi	r24, 0x3F	; 63
+ 16a:	80 64       	ori	r24, 0x40	; 64
+ 16c:	87 b9       	out	0x07, r24	; 7
+{
+	sbi(ADCSR, ADEN);				// enable ADC (turn on ADC power)
+	cbi(ADCSR, ADFR);				// default to single sample convert mode
+	a2dSetPrescaler(ADC_PRESCALE);	// set default prescaler
+	a2dSetReference(ADC_REFERENCE);	// set default reference
+	cbi(ADMUX, ADLAR);				// set to right-adjusted result
+ 16e:	3d 98       	cbi	0x07, 5	; 7
+
+	sbi(ADCSR, ADIE);				// enable ADC interrupts
+ 170:	33 9a       	sbi	0x06, 3	; 6
+
+	a2dCompleteFlag = FALSE;		// clear conversion complete flag
+ 172:	10 92 78 00 	sts	0x0078, r1
+	sei();							// turn on interrupts (if not already on)
+ 176:	78 94       	sei
+ 178:	08 95       	ret
+
+0000017a <a2dOff>:
+}
+
+// turn off a2d converter
+void a2dOff(void)
+{
+	cbi(ADCSR, ADIE);				// disable ADC interrupts
+ 17a:	33 98       	cbi	0x06, 3	; 6
+	cbi(ADCSR, ADEN);				// disable ADC (turn off ADC power)
+ 17c:	37 98       	cbi	0x06, 7	; 6
+ 17e:	08 95       	ret
+
+00000180 <a2dSetPrescaler>:
+}
+
+// configure A2D converter clock division (prescaling)
+void a2dSetPrescaler(unsigned char prescale)
+{
+	outb(ADCSR, ((inb(ADCSR) & ~ADC_PRESCALE_MASK) | prescale));
+ 180:	96 b1       	in	r25, 0x06	; 6
+ 182:	98 7f       	andi	r25, 0xF8	; 248
+ 184:	98 2b       	or	r25, r24
+ 186:	96 b9       	out	0x06, r25	; 6
+ 188:	08 95       	ret
+
+0000018a <a2dSetReference>:
+}
+
+// configure A2D converter voltage reference
+void a2dSetReference(unsigned char ref)
+{
+	outb(ADMUX, ((inb(ADMUX) & ~ADC_REFERENCE_MASK) | (ref<<6)));
+ 18a:	27 b1       	in	r18, 0x07	; 7
+ 18c:	30 e4       	ldi	r19, 0x40	; 64
+ 18e:	83 9f       	mul	r24, r19
+ 190:	c0 01       	movw	r24, r0
+ 192:	11 24       	eor	r1, r1
+ 194:	2f 73       	andi	r18, 0x3F	; 63
+ 196:	28 2b       	or	r18, r24
+ 198:	27 b9       	out	0x07, r18	; 7
+ 19a:	08 95       	ret
+
+0000019c <a2dSetChannel>:
+}
+
+// sets the a2d input channel
+void a2dSetChannel(unsigned char ch)
+{
+	outb(ADMUX, (inb(ADMUX) & ~ADC_MUX_MASK) | (ch & ADC_MUX_MASK));	// set channel
+ 19c:	97 b1       	in	r25, 0x07	; 7
+ 19e:	8f 71       	andi	r24, 0x1F	; 31
+ 1a0:	90 7e       	andi	r25, 0xE0	; 224
+ 1a2:	89 2b       	or	r24, r25
+ 1a4:	87 b9       	out	0x07, r24	; 7
+ 1a6:	08 95       	ret
+
+000001a8 <a2dStartConvert>:
+}
+
+// start a conversion on the current a2d input channel
+void a2dStartConvert(void)
+{
+	sbi(ADCSR, ADIF);	// clear hardware "conversion complete" flag 
+ 1a8:	34 9a       	sbi	0x06, 4	; 6
+	sbi(ADCSR, ADSC);	// start conversion
+ 1aa:	36 9a       	sbi	0x06, 6	; 6
+ 1ac:	08 95       	ret
+
+000001ae <a2dIsComplete>:
+}
+
+// return TRUE if conversion is complete
+u08 a2dIsComplete(void)
+{
+	return bit_is_set(ADCSR, ADSC);
+ 1ae:	86 b1       	in	r24, 0x06	; 6
+}
+ 1b0:	80 74       	andi	r24, 0x40	; 64
+ 1b2:	08 95       	ret
+
+000001b4 <a2dConvert10bit>:
+
+// Perform a 10-bit conversion
+// starts conversion, waits until conversion is done, and returns result
+unsigned short a2dConvert10bit(unsigned char ch)
+{
+	a2dCompleteFlag = FALSE;				// clear conversion complete flag
+ 1b4:	10 92 78 00 	sts	0x0078, r1
+	outb(ADMUX, (inb(ADMUX) & ~ADC_MUX_MASK) | (ch & ADC_MUX_MASK));	// set channel
+ 1b8:	97 b1       	in	r25, 0x07	; 7
+ 1ba:	8f 71       	andi	r24, 0x1F	; 31
+ 1bc:	90 7e       	andi	r25, 0xE0	; 224
+ 1be:	89 2b       	or	r24, r25
+ 1c0:	87 b9       	out	0x07, r24	; 7
+	sbi(ADCSR, ADIF);						// clear hardware "conversion complete" flag 
+ 1c2:	34 9a       	sbi	0x06, 4	; 6
+	sbi(ADCSR, ADSC);						// start conversion
+ 1c4:	36 9a       	sbi	0x06, 6	; 6
+	//while(!a2dCompleteFlag);				// wait until conversion complete
+	//while( bit_is_clear(ADCSR, ADIF) );		// wait until conversion complete
+	while( bit_is_set(ADCSR, ADSC) );		// wait until conversion complete
+ 1c6:	36 99       	sbic	0x06, 6	; 6
+ 1c8:	fe cf       	rjmp	.-4      	; 0x1c6 <a2dConvert10bit+0x12>
+
+	// CAUTION: MUST READ ADCL BEFORE ADCH!!!
+	return (inb(ADCL) | (inb(ADCH)<<8));	// read ADC (full 10 bits);
+ 1ca:	24 b1       	in	r18, 0x04	; 4
+ 1cc:	35 b1       	in	r19, 0x05	; 5
+ 1ce:	93 2f       	mov	r25, r19
+ 1d0:	80 e0       	ldi	r24, 0x00	; 0
+ 1d2:	ac 01       	movw	r20, r24
+ 1d4:	42 2b       	or	r20, r18
+ 1d6:	9a 01       	movw	r18, r20
+}
+ 1d8:	c9 01       	movw	r24, r18
+ 1da:	08 95       	ret
+
+000001dc <a2dConvert8bit>:
+// Perform a 8-bit conversion.
+// starts conversion, waits until conversion is done, and returns result
+unsigned char a2dConvert8bit(unsigned char ch)
+{
+	// do 10-bit conversion and return highest 8 bits
+	return a2dConvert10bit(ch)>>2;			// return ADC MSB byte
+ 1dc:	eb df       	rcall	.-42     	; 0x1b4 <a2dConvert10bit>
+ 1de:	96 95       	lsr	r25
+ 1e0:	87 95       	ror	r24
+ 1e2:	96 95       	lsr	r25
+ 1e4:	87 95       	ror	r24
+}
+ 1e6:	08 95       	ret
+
+000001e8 <__vector_14>:
+
+//! Interrupt handler for ADC complete interrupt.
+ISR(ADC_vect)
+{
+ 1e8:	1f 92       	push	r1
+ 1ea:	0f 92       	push	r0
+ 1ec:	0f b6       	in	r0, 0x3f	; 63
+ 1ee:	0f 92       	push	r0
+ 1f0:	11 24       	eor	r1, r1
+ 1f2:	8f 93       	push	r24
+	// set the a2d conversion flag to indicate "complete"
+	a2dCompleteFlag = TRUE;
+ 1f4:	8f ef       	ldi	r24, 0xFF	; 255
+ 1f6:	80 93 78 00 	sts	0x0078, r24
+}
+ 1fa:	8f 91       	pop	r24
+ 1fc:	0f 90       	pop	r0
+ 1fe:	0f be       	out	0x3f, r0	; 63
+ 200:	0f 90       	pop	r0
+ 202:	1f 90       	pop	r1
+ 204:	18 95       	reti
+
+00000206 <delay_us>:
+
+// delay for a minimum of <us> microseconds 
+// the time resolution is dependent on the time the loop takes 
+// e.g. with 4Mhz and 5 cycles per loop, the resolution is 1.25 us 
+void delay_us(unsigned short time_us) 
+{
+ 206:	08 95       	ret
+
+00000208 <timerInit>:
+{
+	// make sure the interrupt number is within bounds
+	if(interruptNum < TIMER_NUM_INTERRUPTS)
+	{
+		// set the interrupt function to run nothing
+		TimerIntFunc[interruptNum] = 0;
+ 208:	10 92 6b 00 	sts	0x006B, r1
+ 20c:	10 92 6a 00 	sts	0x006A, r1
+ 210:	10 92 6d 00 	sts	0x006D, r1
+ 214:	10 92 6c 00 	sts	0x006C, r1
+ 218:	10 92 6f 00 	sts	0x006F, r1
+ 21c:	10 92 6e 00 	sts	0x006E, r1
+ 220:	10 92 71 00 	sts	0x0071, r1
+ 224:	10 92 70 00 	sts	0x0070, r1
+ 228:	10 92 73 00 	sts	0x0073, r1
+ 22c:	10 92 72 00 	sts	0x0072, r1
+ 230:	10 92 75 00 	sts	0x0075, r1
+ 234:	10 92 74 00 	sts	0x0074, r1
+ 238:	10 92 77 00 	sts	0x0077, r1
+ 23c:	10 92 76 00 	sts	0x0076, r1
+#endif
+
+void timer0SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 0
+	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+ 240:	83 b7       	in	r24, 0x33	; 51
+ 242:	88 7f       	andi	r24, 0xF8	; 248
+ 244:	82 60       	ori	r24, 0x02	; 2
+ 246:	83 bf       	out	0x33, r24	; 51
+
+void timer0Init()
+{
+	// initialize timer 0
+	timer0SetPrescaler( TIMER0PRESCALE );	// set prescaler
+	outb(TCNT0, 0);							// reset TCNT0
+ 248:	12 be       	out	0x32, r1	; 50
+	sbi(TIMSK, TOIE0);						// enable TCNT0 overflow interrupt
+ 24a:	89 b7       	in	r24, 0x39	; 57
+ 24c:	81 60       	ori	r24, 0x01	; 1
+ 24e:	89 bf       	out	0x39, r24	; 57
+}
+
+void timer0ClearOverflowCount(void)
+{
+	// clear the timer overflow counter registers
+	Timer0Reg0 = 0;	// initialize time registers
+ 250:	10 92 79 00 	sts	0x0079, r1
+ 254:	10 92 7a 00 	sts	0x007A, r1
+ 258:	10 92 7b 00 	sts	0x007B, r1
+ 25c:	10 92 7c 00 	sts	0x007C, r1
+}
+
+void timer1SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 1
+	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+ 260:	8e b5       	in	r24, 0x2e	; 46
+ 262:	88 7f       	andi	r24, 0xF8	; 248
+ 264:	83 60       	ori	r24, 0x03	; 3
+ 266:	8e bd       	out	0x2e, r24	; 46
+
+void timer1Init(void)
+{
+	// initialize timer 1
+	timer1SetPrescaler( TIMER1PRESCALE );	// set prescaler
+	outb(TCNT1H, 0);						// reset TCNT1
+ 268:	1d bc       	out	0x2d, r1	; 45
+	outb(TCNT1L, 0);
+ 26a:	1c bc       	out	0x2c, r1	; 44
+	sbi(TIMSK, TOIE1);						// enable TCNT1 overflow
+ 26c:	89 b7       	in	r24, 0x39	; 57
+ 26e:	84 60       	ori	r24, 0x04	; 4
+ 270:	89 bf       	out	0x39, r24	; 57
+
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 2
+	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 272:	85 b5       	in	r24, 0x25	; 37
+ 274:	88 7f       	andi	r24, 0xF8	; 248
+ 276:	84 60       	ori	r24, 0x04	; 4
+ 278:	85 bd       	out	0x25, r24	; 37
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2Init(void)
+{
+	// initialize timer 2
+	timer2SetPrescaler( TIMER2PRESCALE );	// set prescaler
+	outb(TCNT2, 0);							// reset TCNT2
+ 27a:	14 bc       	out	0x24, r1	; 36
+	sbi(TIMSK, TOIE2);						// enable TCNT2 overflow
+ 27c:	89 b7       	in	r24, 0x39	; 57
+ 27e:	80 64       	ori	r24, 0x40	; 64
+ 280:	89 bf       	out	0x39, r24	; 57
+
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2ClearOverflowCount(void)
+{
+	// clear the timer overflow counter registers
+	Timer2Reg0 = 0;	// initialize time registers
+ 282:	10 92 81 00 	sts	0x0081, r1
+ 286:	10 92 82 00 	sts	0x0082, r1
+ 28a:	10 92 83 00 	sts	0x0083, r1
+ 28e:	10 92 84 00 	sts	0x0084, r1
+	timer1Init();
+	#ifdef TCNT2	// support timer2 only if it exists
+	timer2Init();
+	#endif
+	// enable interrupts
+	sei();
+ 292:	78 94       	sei
+ 294:	08 95       	ret
+
+00000296 <timer0Init>:
+#endif
+
+void timer0SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 0
+	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+ 296:	83 b7       	in	r24, 0x33	; 51
+ 298:	88 7f       	andi	r24, 0xF8	; 248
+ 29a:	82 60       	ori	r24, 0x02	; 2
+ 29c:	83 bf       	out	0x33, r24	; 51
+
+void timer0Init()
+{
+	// initialize timer 0
+	timer0SetPrescaler( TIMER0PRESCALE );	// set prescaler
+	outb(TCNT0, 0);							// reset TCNT0
+ 29e:	12 be       	out	0x32, r1	; 50
+	sbi(TIMSK, TOIE0);						// enable TCNT0 overflow interrupt
+ 2a0:	89 b7       	in	r24, 0x39	; 57
+ 2a2:	81 60       	ori	r24, 0x01	; 1
+ 2a4:	89 bf       	out	0x39, r24	; 57
+}
+
+void timer0ClearOverflowCount(void)
+{
+	// clear the timer overflow counter registers
+	Timer0Reg0 = 0;	// initialize time registers
+ 2a6:	10 92 79 00 	sts	0x0079, r1
+ 2aa:	10 92 7a 00 	sts	0x007A, r1
+ 2ae:	10 92 7b 00 	sts	0x007B, r1
+ 2b2:	10 92 7c 00 	sts	0x007C, r1
+ 2b6:	08 95       	ret
+
+000002b8 <timer1Init>:
+}
+
+void timer1SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 1
+	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+ 2b8:	8e b5       	in	r24, 0x2e	; 46
+ 2ba:	88 7f       	andi	r24, 0xF8	; 248
+ 2bc:	83 60       	ori	r24, 0x03	; 3
+ 2be:	8e bd       	out	0x2e, r24	; 46
+
+void timer1Init(void)
+{
+	// initialize timer 1
+	timer1SetPrescaler( TIMER1PRESCALE );	// set prescaler
+	outb(TCNT1H, 0);						// reset TCNT1
+ 2c0:	1d bc       	out	0x2d, r1	; 45
+	outb(TCNT1L, 0);
+ 2c2:	1c bc       	out	0x2c, r1	; 44
+	sbi(TIMSK, TOIE1);						// enable TCNT1 overflow
+ 2c4:	89 b7       	in	r24, 0x39	; 57
+ 2c6:	84 60       	ori	r24, 0x04	; 4
+ 2c8:	89 bf       	out	0x39, r24	; 57
+ 2ca:	08 95       	ret
+
+000002cc <timer2Init>:
+
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 2
+	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 2cc:	85 b5       	in	r24, 0x25	; 37
+ 2ce:	88 7f       	andi	r24, 0xF8	; 248
+ 2d0:	84 60       	ori	r24, 0x04	; 4
+ 2d2:	85 bd       	out	0x25, r24	; 37
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2Init(void)
+{
+	// initialize timer 2
+	timer2SetPrescaler( TIMER2PRESCALE );	// set prescaler
+	outb(TCNT2, 0);							// reset TCNT2
+ 2d4:	14 bc       	out	0x24, r1	; 36
+	sbi(TIMSK, TOIE2);						// enable TCNT2 overflow
+ 2d6:	89 b7       	in	r24, 0x39	; 57
+ 2d8:	80 64       	ori	r24, 0x40	; 64
+ 2da:	89 bf       	out	0x39, r24	; 57
+
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2ClearOverflowCount(void)
+{
+	// clear the timer overflow counter registers
+	Timer2Reg0 = 0;	// initialize time registers
+ 2dc:	10 92 81 00 	sts	0x0081, r1
+ 2e0:	10 92 82 00 	sts	0x0082, r1
+ 2e4:	10 92 83 00 	sts	0x0083, r1
+ 2e8:	10 92 84 00 	sts	0x0084, r1
+ 2ec:	08 95       	ret
+
+000002ee <timer0SetPrescaler>:
+#endif
+
+void timer0SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 0
+	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+ 2ee:	93 b7       	in	r25, 0x33	; 51
+ 2f0:	98 7f       	andi	r25, 0xF8	; 248
+ 2f2:	98 2b       	or	r25, r24
+ 2f4:	93 bf       	out	0x33, r25	; 51
+ 2f6:	08 95       	ret
+
+000002f8 <timer1SetPrescaler>:
+}
+
+void timer1SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 1
+	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+ 2f8:	9e b5       	in	r25, 0x2e	; 46
+ 2fa:	98 7f       	andi	r25, 0xF8	; 248
+ 2fc:	98 2b       	or	r25, r24
+ 2fe:	9e bd       	out	0x2e, r25	; 46
+ 300:	08 95       	ret
+
+00000302 <timer2SetPrescaler>:
+
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2SetPrescaler(u08 prescale)
+{
+	// set prescaler on timer 2
+	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 302:	95 b5       	in	r25, 0x25	; 37
+ 304:	98 7f       	andi	r25, 0xF8	; 248
+ 306:	98 2b       	or	r25, r24
+ 308:	95 bd       	out	0x25, r25	; 37
+ 30a:	08 95       	ret
+
+0000030c <timer0GetPrescaler>:
+#endif
+
+u16 timer0GetPrescaler(void)
+{
+	// get the current prescaler setting
+	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR0) & TIMER_PRESCALE_MASK)));
+ 30c:	e3 b7       	in	r30, 0x33	; 51
+ 30e:	e7 70       	andi	r30, 0x07	; 7
+ 310:	f0 e0       	ldi	r31, 0x00	; 0
+ 312:	ee 0f       	add	r30, r30
+ 314:	ff 1f       	adc	r31, r31
+ 316:	ea 5c       	subi	r30, 0xCA	; 202
+ 318:	ff 4f       	sbci	r31, 0xFF	; 255
+ 31a:	25 91       	lpm	r18, Z+
+ 31c:	34 91       	lpm	r19, Z
+}
+ 31e:	c9 01       	movw	r24, r18
+ 320:	08 95       	ret
+
+00000322 <timer1GetPrescaler>:
+
+u16 timer1GetPrescaler(void)
+{
+	// get the current prescaler setting
+	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR1B) & TIMER_PRESCALE_MASK)));
+ 322:	ee b5       	in	r30, 0x2e	; 46
+ 324:	e7 70       	andi	r30, 0x07	; 7
+ 326:	f0 e0       	ldi	r31, 0x00	; 0
+ 328:	ee 0f       	add	r30, r30
+ 32a:	ff 1f       	adc	r31, r31
+ 32c:	ea 5c       	subi	r30, 0xCA	; 202
+ 32e:	ff 4f       	sbci	r31, 0xFF	; 255
+ 330:	25 91       	lpm	r18, Z+
+ 332:	34 91       	lpm	r19, Z
+}
+ 334:	c9 01       	movw	r24, r18
+ 336:	08 95       	ret
+
+00000338 <timer2GetPrescaler>:
+{
+	//TODO: can we assume for all 3-timer AVR processors,
+	// that timer2 is the RTC timer?
+
+	// get the current prescaler setting
+	return (pgm_read_word(TimerRTCPrescaleFactor+(inb(TCCR2) & TIMER_PRESCALE_MASK)));
+ 338:	e5 b5       	in	r30, 0x25	; 37
+ 33a:	e7 70       	andi	r30, 0x07	; 7
+ 33c:	f0 e0       	ldi	r31, 0x00	; 0
+ 33e:	ee 0f       	add	r30, r30
+ 340:	ff 1f       	adc	r31, r31
+ 342:	ea 5d       	subi	r30, 0xDA	; 218
+ 344:	ff 4f       	sbci	r31, 0xFF	; 255
+ 346:	25 91       	lpm	r18, Z+
+ 348:	34 91       	lpm	r19, Z
+}
+ 34a:	c9 01       	movw	r24, r18
+ 34c:	08 95       	ret
+
+0000034e <timerAttach>:
+#endif
+
+void timerAttach(u08 interruptNum, void (*userFunc)(void) )
+{
+	// make sure the interrupt number is within bounds
+	if(interruptNum < TIMER_NUM_INTERRUPTS)
+ 34e:	87 30       	cpi	r24, 0x07	; 7
+ 350:	40 f4       	brcc	.+16     	; 0x362 <timerAttach+0x14>
+	{
+		// set the interrupt function to run
+		// the supplied user's function
+		TimerIntFunc[interruptNum] = userFunc;
+ 352:	e8 2f       	mov	r30, r24
+ 354:	f0 e0       	ldi	r31, 0x00	; 0
+ 356:	ee 0f       	add	r30, r30
+ 358:	ff 1f       	adc	r31, r31
+ 35a:	e6 59       	subi	r30, 0x96	; 150
+ 35c:	ff 4f       	sbci	r31, 0xFF	; 255
+ 35e:	71 83       	std	Z+1, r23	; 0x01
+ 360:	60 83       	st	Z, r22
+ 362:	08 95       	ret
+
+00000364 <timerDetach>:
+}
+
+void timerDetach(u08 interruptNum)
+{
+	// make sure the interrupt number is within bounds
+	if(interruptNum < TIMER_NUM_INTERRUPTS)
+ 364:	87 30       	cpi	r24, 0x07	; 7
+ 366:	40 f4       	brcc	.+16     	; 0x378 <timerDetach+0x14>
+	{
+		// set the interrupt function to run nothing
+		TimerIntFunc[interruptNum] = 0;
+ 368:	e8 2f       	mov	r30, r24
+ 36a:	f0 e0       	ldi	r31, 0x00	; 0
+ 36c:	ee 0f       	add	r30, r30
+ 36e:	ff 1f       	adc	r31, r31
+ 370:	e6 59       	subi	r30, 0x96	; 150
+ 372:	ff 4f       	sbci	r31, 0xFF	; 255
+ 374:	11 82       	std	Z+1, r1	; 0x01
+ 376:	10 82       	st	Z, r1
+ 378:	08 95       	ret
+
+0000037a <timerPause>:
+	// calculate the number of milliseconds in x timer tics
+	return (tics*1000*(prescaleDiv*256))/F_CPU;
+}
+*/
+void timerPause(unsigned short pause_ms)
+{
+ 37a:	cf 92       	push	r12
+ 37c:	df 92       	push	r13
+ 37e:	ef 92       	push	r14
+ 380:	ff 92       	push	r15
+ 382:	0f 93       	push	r16
+ 384:	1f 93       	push	r17
+ 386:	cf 93       	push	r28
+ 388:	df 93       	push	r29
+ 38a:	ec 01       	movw	r28, r24
+	u08 timerThres;
+	u32 ticRateHz;
+	u32 pause;
+
+	// capture current pause timer value
+	timerThres = inb(TCNT0);
+ 38c:	12 b7       	in	r17, 0x32	; 50
+	// reset pause timer overflow count
+	TimerPauseReg = 0;
+ 38e:	10 92 7d 00 	sts	0x007D, r1
+ 392:	10 92 7e 00 	sts	0x007E, r1
+ 396:	10 92 7f 00 	sts	0x007F, r1
+ 39a:	10 92 80 00 	sts	0x0080, r1
+#endif
+
+u16 timer0GetPrescaler(void)
+{
+	// get the current prescaler setting
+	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR0) & TIMER_PRESCALE_MASK)));
+ 39e:	e3 b7       	in	r30, 0x33	; 51
+ 3a0:	e7 70       	andi	r30, 0x07	; 7
+ 3a2:	f0 e0       	ldi	r31, 0x00	; 0
+ 3a4:	ee 0f       	add	r30, r30
+ 3a6:	ff 1f       	adc	r31, r31
+ 3a8:	ea 5c       	subi	r30, 0xCA	; 202
+ 3aa:	ff 4f       	sbci	r31, 0xFF	; 255
+ 3ac:	25 91       	lpm	r18, Z+
+ 3ae:	34 91       	lpm	r19, Z
+	timerThres = inb(TCNT0);
+	// reset pause timer overflow count
+	TimerPauseReg = 0;
+	// calculate delay for [pause_ms] milliseconds
+	// prescaler division = 1<<(pgm_read_byte(TimerPrescaleFactor+inb(TCCR0)))
+	ticRateHz = F_CPU/timer0GetPrescaler();
+ 3b0:	40 e0       	ldi	r20, 0x00	; 0
+ 3b2:	50 e0       	ldi	r21, 0x00	; 0
+ 3b4:	60 e0       	ldi	r22, 0x00	; 0
+ 3b6:	72 e1       	ldi	r23, 0x12	; 18
+ 3b8:	8a e7       	ldi	r24, 0x7A	; 122
+ 3ba:	90 e0       	ldi	r25, 0x00	; 0
+ 3bc:	42 d3       	rcall	.+1668   	; 0xa42 <__divmodsi4>
+	// precision management
+	// prevent overflow and precision underflow
+	//	-could add more conditions to improve accuracy
+	if( ((ticRateHz < 429497) && (pause_ms <= 10000)) )
+ 3be:	29 3b       	cpi	r18, 0xB9	; 185
+ 3c0:	8d e8       	ldi	r24, 0x8D	; 141
+ 3c2:	38 07       	cpc	r19, r24
+ 3c4:	86 e0       	ldi	r24, 0x06	; 6
+ 3c6:	48 07       	cpc	r20, r24
+ 3c8:	51 05       	cpc	r21, r1
+ 3ca:	28 f4       	brcc	.+10     	; 0x3d6 <timerPause+0x5c>
+ 3cc:	c1 31       	cpi	r28, 0x11	; 17
+ 3ce:	87 e2       	ldi	r24, 0x27	; 39
+ 3d0:	d8 07       	cpc	r29, r24
+ 3d2:	08 f4       	brcc	.+2      	; 0x3d6 <timerPause+0x5c>
+ 3d4:	54 c0       	rjmp	.+168    	; 0x47e <__stack+0x1f>
+		pause = (pause_ms*ticRateHz)/1000;
+	else
+		pause = pause_ms*(ticRateHz/1000);
+ 3d6:	ca 01       	movw	r24, r20
+ 3d8:	b9 01       	movw	r22, r18
+ 3da:	28 ee       	ldi	r18, 0xE8	; 232
+ 3dc:	33 e0       	ldi	r19, 0x03	; 3
+ 3de:	40 e0       	ldi	r20, 0x00	; 0
+ 3e0:	50 e0       	ldi	r21, 0x00	; 0
+ 3e2:	0d d3       	rcall	.+1562   	; 0x9fe <__udivmodsi4>
+ 3e4:	de 01       	movw	r26, r28
+ 3e6:	54 d3       	rcall	.+1704   	; 0xa90 <__muluhisi3>
+ 3e8:	9b 01       	movw	r18, r22
+ 3ea:	ac 01       	movw	r20, r24
+
+	// loop until time expires
+	while( ((TimerPauseReg<<8) | inb(TCNT0)) < (pause+timerThres) )
+ 3ec:	80 91 7d 00 	lds	r24, 0x007D
+ 3f0:	90 91 7e 00 	lds	r25, 0x007E
+ 3f4:	a0 91 7f 00 	lds	r26, 0x007F
+ 3f8:	b0 91 80 00 	lds	r27, 0x0080
+ 3fc:	62 b7       	in	r22, 0x32	; 50
+ 3fe:	69 01       	movw	r12, r18
+ 400:	7a 01       	movw	r14, r20
+ 402:	c1 0e       	add	r12, r17
+ 404:	d1 1c       	adc	r13, r1
+ 406:	e1 1c       	adc	r14, r1
+ 408:	f1 1c       	adc	r15, r1
+ 40a:	97 01       	movw	r18, r14
+ 40c:	86 01       	movw	r16, r12
+ 40e:	ba 2f       	mov	r27, r26
+ 410:	a9 2f       	mov	r26, r25
+ 412:	98 2f       	mov	r25, r24
+ 414:	88 27       	eor	r24, r24
+ 416:	86 2b       	or	r24, r22
+ 418:	8c 15       	cp	r24, r12
+ 41a:	9d 05       	cpc	r25, r13
+ 41c:	ae 05       	cpc	r26, r14
+ 41e:	bf 05       	cpc	r27, r15
+ 420:	28 f5       	brcc	.+74     	; 0x46c <__stack+0xd>
+	{
+		if( TimerPauseReg < (pause>>8));
+ 422:	80 91 7d 00 	lds	r24, 0x007D
+ 426:	90 91 7e 00 	lds	r25, 0x007E
+ 42a:	a0 91 7f 00 	lds	r26, 0x007F
+ 42e:	b0 91 80 00 	lds	r27, 0x0080
+		{
+			// save power by idling the processor
+			set_sleep_mode(SLEEP_MODE_IDLE);
+ 432:	85 b7       	in	r24, 0x35	; 53
+ 434:	8f 78       	andi	r24, 0x8F	; 143
+ 436:	85 bf       	out	0x35, r24	; 53
+			sleep_mode();
+ 438:	85 b7       	in	r24, 0x35	; 53
+ 43a:	80 68       	ori	r24, 0x80	; 128
+ 43c:	85 bf       	out	0x35, r24	; 53
+ 43e:	88 95       	sleep
+ 440:	85 b7       	in	r24, 0x35	; 53
+ 442:	8f 77       	andi	r24, 0x7F	; 127
+ 444:	85 bf       	out	0x35, r24	; 53
+		pause = (pause_ms*ticRateHz)/1000;
+	else
+		pause = pause_ms*(ticRateHz/1000);
+
+	// loop until time expires
+	while( ((TimerPauseReg<<8) | inb(TCNT0)) < (pause+timerThres) )
+ 446:	80 91 7d 00 	lds	r24, 0x007D
+ 44a:	90 91 7e 00 	lds	r25, 0x007E
+ 44e:	a0 91 7f 00 	lds	r26, 0x007F
+ 452:	b0 91 80 00 	lds	r27, 0x0080
+ 456:	62 b7       	in	r22, 0x32	; 50
+ 458:	ba 2f       	mov	r27, r26
+ 45a:	a9 2f       	mov	r26, r25
+ 45c:	98 2f       	mov	r25, r24
+ 45e:	88 27       	eor	r24, r24
+ 460:	86 2b       	or	r24, r22
+ 462:	80 17       	cp	r24, r16
+ 464:	91 07       	cpc	r25, r17
+ 466:	a2 07       	cpc	r26, r18
+ 468:	b3 07       	cpc	r27, r19
+ 46a:	d8 f2       	brcs	.-74     	; 0x422 <timerPause+0xa8>
+	
+	TimerPauseReg = 0;
+	while(TimerPauseReg < pause);
+
+	*/
+}
+ 46c:	df 91       	pop	r29
+ 46e:	cf 91       	pop	r28
+ 470:	1f 91       	pop	r17
+ 472:	0f 91       	pop	r16
+ 474:	ff 90       	pop	r15
+ 476:	ef 90       	pop	r14
+ 478:	df 90       	pop	r13
+ 47a:	cf 90       	pop	r12
+ 47c:	08 95       	ret
+	ticRateHz = F_CPU/timer0GetPrescaler();
+	// precision management
+	// prevent overflow and precision underflow
+	//	-could add more conditions to improve accuracy
+	if( ((ticRateHz < 429497) && (pause_ms <= 10000)) )
+		pause = (pause_ms*ticRateHz)/1000;
+ 47e:	de 01       	movw	r26, r28
+ 480:	07 d3       	rcall	.+1550   	; 0xa90 <__muluhisi3>
+ 482:	28 ee       	ldi	r18, 0xE8	; 232
+ 484:	33 e0       	ldi	r19, 0x03	; 3
+ 486:	40 e0       	ldi	r20, 0x00	; 0
+ 488:	50 e0       	ldi	r21, 0x00	; 0
+ 48a:	b9 d2       	rcall	.+1394   	; 0x9fe <__udivmodsi4>
+ 48c:	af cf       	rjmp	.-162    	; 0x3ec <timerPause+0x72>
+
+0000048e <timer0ClearOverflowCount>:
+}
+
+void timer0ClearOverflowCount(void)
+{
+	// clear the timer overflow counter registers
+	Timer0Reg0 = 0;	// initialize time registers
+ 48e:	10 92 79 00 	sts	0x0079, r1
+ 492:	10 92 7a 00 	sts	0x007A, r1
+ 496:	10 92 7b 00 	sts	0x007B, r1
+ 49a:	10 92 7c 00 	sts	0x007C, r1
+ 49e:	08 95       	ret
+
+000004a0 <timer0GetOverflowCount>:
+}
+
+long timer0GetOverflowCount(void)
+{
+ 4a0:	0f 93       	push	r16
+ 4a2:	1f 93       	push	r17
+	// return the current timer overflow count
+	// (this is since the last timer0ClearOverflowCount() command was called)
+	return Timer0Reg0;
+ 4a4:	00 91 79 00 	lds	r16, 0x0079
+ 4a8:	10 91 7a 00 	lds	r17, 0x007A
+ 4ac:	20 91 7b 00 	lds	r18, 0x007B
+ 4b0:	30 91 7c 00 	lds	r19, 0x007C
+}
+ 4b4:	b8 01       	movw	r22, r16
+ 4b6:	c9 01       	movw	r24, r18
+ 4b8:	1f 91       	pop	r17
+ 4ba:	0f 91       	pop	r16
+ 4bc:	08 95       	ret
+
+000004be <timer2ClearOverflowCount>:
+
+#ifdef TCNT2	// support timer2 only if it exists
+void timer2ClearOverflowCount(void)
+{
+	// clear the timer overflow counter registers
+	Timer2Reg0 = 0;	// initialize time registers
+ 4be:	10 92 81 00 	sts	0x0081, r1
+ 4c2:	10 92 82 00 	sts	0x0082, r1
+ 4c6:	10 92 83 00 	sts	0x0083, r1
+ 4ca:	10 92 84 00 	sts	0x0084, r1
+ 4ce:	08 95       	ret
+
+000004d0 <timer2GetOverflowCount>:
+}
+
+long timer2GetOverflowCount(void)
+{
+ 4d0:	0f 93       	push	r16
+ 4d2:	1f 93       	push	r17
+	// return the current timer overflow count
+	// (this is since the last timer2ClearOverflowCount() command was called)
+	return Timer2Reg0;
+ 4d4:	00 91 81 00 	lds	r16, 0x0081
+ 4d8:	10 91 82 00 	lds	r17, 0x0082
+ 4dc:	20 91 83 00 	lds	r18, 0x0083
+ 4e0:	30 91 84 00 	lds	r19, 0x0084
+}
+ 4e4:	b8 01       	movw	r22, r16
+ 4e6:	c9 01       	movw	r24, r18
+ 4e8:	1f 91       	pop	r17
+ 4ea:	0f 91       	pop	r16
+ 4ec:	08 95       	ret
+
+000004ee <timer1PWMInit>:
+{
+	// configures timer1 for use with PWM output
+	// on OC1A and OC1B pins
+
+	// enable timer1 as 8,9,10bit PWM
+	if(bitRes == 9)
+ 4ee:	89 30       	cpi	r24, 0x09	; 9
+ 4f0:	69 f0       	breq	.+26     	; 0x50c <timer1PWMInit+0x1e>
+	{	// 9bit mode
+		sbi(TCCR1A,PWM11);
+		cbi(TCCR1A,PWM10);
+	}
+	else if( bitRes == 10 )
+ 4f2:	8a 30       	cpi	r24, 0x0A	; 10
+ 4f4:	b1 f0       	breq	.+44     	; 0x522 <timer1PWMInit+0x34>
+		sbi(TCCR1A,PWM11);
+		sbi(TCCR1A,PWM10);
+	}
+	else
+	{	// default 8bit mode
+		cbi(TCCR1A,PWM11);
+ 4f6:	8f b5       	in	r24, 0x2f	; 47
+ 4f8:	8d 7f       	andi	r24, 0xFD	; 253
+ 4fa:	8f bd       	out	0x2f, r24	; 47
+		sbi(TCCR1A,PWM10);
+ 4fc:	8f b5       	in	r24, 0x2f	; 47
+ 4fe:	81 60       	ori	r24, 0x01	; 1
+ 500:	8f bd       	out	0x2f, r24	; 47
+	}
+
+	// clear output compare value A
+	outb(OCR1AH, 0);
+ 502:	1b bc       	out	0x2b, r1	; 43
+	outb(OCR1AL, 0);
+ 504:	1a bc       	out	0x2a, r1	; 42
+	// clear output compare value B
+	outb(OCR1BH, 0);
+ 506:	19 bc       	out	0x29, r1	; 41
+	outb(OCR1BL, 0);
+ 508:	18 bc       	out	0x28, r1	; 40
+ 50a:	08 95       	ret
+	// on OC1A and OC1B pins
+
+	// enable timer1 as 8,9,10bit PWM
+	if(bitRes == 9)
+	{	// 9bit mode
+		sbi(TCCR1A,PWM11);
+ 50c:	8f b5       	in	r24, 0x2f	; 47
+ 50e:	82 60       	ori	r24, 0x02	; 2
+ 510:	8f bd       	out	0x2f, r24	; 47
+		cbi(TCCR1A,PWM10);
+ 512:	8f b5       	in	r24, 0x2f	; 47
+ 514:	8e 7f       	andi	r24, 0xFE	; 254
+ 516:	8f bd       	out	0x2f, r24	; 47
+		cbi(TCCR1A,PWM11);
+		sbi(TCCR1A,PWM10);
+	}
+
+	// clear output compare value A
+	outb(OCR1AH, 0);
+ 518:	1b bc       	out	0x2b, r1	; 43
+	outb(OCR1AL, 0);
+ 51a:	1a bc       	out	0x2a, r1	; 42
+	// clear output compare value B
+	outb(OCR1BH, 0);
+ 51c:	19 bc       	out	0x29, r1	; 41
+	outb(OCR1BL, 0);
+ 51e:	18 bc       	out	0x28, r1	; 40
+ 520:	08 95       	ret
+		sbi(TCCR1A,PWM11);
+		cbi(TCCR1A,PWM10);
+	}
+	else if( bitRes == 10 )
+	{	// 10bit mode
+		sbi(TCCR1A,PWM11);
+ 522:	8f b5       	in	r24, 0x2f	; 47
+ 524:	82 60       	ori	r24, 0x02	; 2
+ 526:	8f bd       	out	0x2f, r24	; 47
+		sbi(TCCR1A,PWM10);
+ 528:	8f b5       	in	r24, 0x2f	; 47
+ 52a:	81 60       	ori	r24, 0x01	; 1
+ 52c:	8f bd       	out	0x2f, r24	; 47
+		cbi(TCCR1A,PWM11);
+		sbi(TCCR1A,PWM10);
+	}
+
+	// clear output compare value A
+	outb(OCR1AH, 0);
+ 52e:	1b bc       	out	0x2b, r1	; 43
+	outb(OCR1AL, 0);
+ 530:	1a bc       	out	0x2a, r1	; 42
+	// clear output compare value B
+	outb(OCR1BH, 0);
+ 532:	19 bc       	out	0x29, r1	; 41
+	outb(OCR1BL, 0);
+ 534:	18 bc       	out	0x28, r1	; 40
+ 536:	08 95       	ret
+
+00000538 <timer1PWMInitICR>:
+// include support for arbitrary top-count PWM
+// on new AVR processors that support it
+void timer1PWMInitICR(u16 topcount)
+{
+	// set PWM mode with ICR top-count
+	cbi(TCCR1A,WGM10);
+ 538:	2f b5       	in	r18, 0x2f	; 47
+ 53a:	2e 7f       	andi	r18, 0xFE	; 254
+ 53c:	2f bd       	out	0x2f, r18	; 47
+	sbi(TCCR1A,WGM11);
+ 53e:	2f b5       	in	r18, 0x2f	; 47
+ 540:	22 60       	ori	r18, 0x02	; 2
+ 542:	2f bd       	out	0x2f, r18	; 47
+	sbi(TCCR1B,WGM12);
+ 544:	2e b5       	in	r18, 0x2e	; 46
+ 546:	28 60       	ori	r18, 0x08	; 8
+ 548:	2e bd       	out	0x2e, r18	; 46
+	sbi(TCCR1B,WGM13);
+ 54a:	2e b5       	in	r18, 0x2e	; 46
+ 54c:	20 61       	ori	r18, 0x10	; 16
+ 54e:	2e bd       	out	0x2e, r18	; 46
+	
+	// set top count value
+	ICR1 = topcount;
+ 550:	97 bd       	out	0x27, r25	; 39
+ 552:	86 bd       	out	0x26, r24	; 38
+	
+	// clear output compare value A
+	OCR1A = 0;
+ 554:	1b bc       	out	0x2b, r1	; 43
+ 556:	1a bc       	out	0x2a, r1	; 42
+	// clear output compare value B
+	OCR1B = 0;
+ 558:	19 bc       	out	0x29, r1	; 41
+ 55a:	18 bc       	out	0x28, r1	; 40
+ 55c:	08 95       	ret
+
+0000055e <timer1PWMOff>:
+#endif
+
+void timer1PWMOff(void)
+{
+	// turn off timer1 PWM mode
+	cbi(TCCR1A,PWM11);
+ 55e:	8f b5       	in	r24, 0x2f	; 47
+ 560:	8d 7f       	andi	r24, 0xFD	; 253
+ 562:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,PWM10);
+ 564:	8f b5       	in	r24, 0x2f	; 47
+ 566:	8e 7f       	andi	r24, 0xFE	; 254
+ 568:	8f bd       	out	0x2f, r24	; 47
+
+void timer1PWMAOff(void)
+{
+	// turn off channel A (OC1A) PWM output
+	// set OC1A (OutputCompare action) to none
+	cbi(TCCR1A,COM1A1);
+ 56a:	8f b5       	in	r24, 0x2f	; 47
+ 56c:	8f 77       	andi	r24, 0x7F	; 127
+ 56e:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1A0);
+ 570:	8f b5       	in	r24, 0x2f	; 47
+ 572:	8f 7b       	andi	r24, 0xBF	; 191
+ 574:	8f bd       	out	0x2f, r24	; 47
+
+void timer1PWMBOff(void)
+{
+	// turn off channel B (OC1B) PWM output
+	// set OC1B (OutputCompare action) to none
+	cbi(TCCR1A,COM1B1);
+ 576:	8f b5       	in	r24, 0x2f	; 47
+ 578:	8f 7d       	andi	r24, 0xDF	; 223
+ 57a:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1B0);
+ 57c:	8f b5       	in	r24, 0x2f	; 47
+ 57e:	8f 7e       	andi	r24, 0xEF	; 239
+ 580:	8f bd       	out	0x2f, r24	; 47
+ 582:	08 95       	ret
+
+00000584 <timer1PWMAOn>:
+
+void timer1PWMAOn(void)
+{
+	// turn on channel A (OC1A) PWM output
+	// set OC1A as non-inverted PWM
+	sbi(TCCR1A,COM1A1);
+ 584:	8f b5       	in	r24, 0x2f	; 47
+ 586:	80 68       	ori	r24, 0x80	; 128
+ 588:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1A0);
+ 58a:	8f b5       	in	r24, 0x2f	; 47
+ 58c:	8f 7b       	andi	r24, 0xBF	; 191
+ 58e:	8f bd       	out	0x2f, r24	; 47
+ 590:	08 95       	ret
+
+00000592 <timer1PWMAOnInv>:
+
+void timer1PWMAOnInv(void)
+{
+	// turn on channel A (OC1A) PWM output
+	// set OC1A as non-inverted PWM
+	sbi(TCCR1A,COM1A1);
+ 592:	8f b5       	in	r24, 0x2f	; 47
+ 594:	80 68       	ori	r24, 0x80	; 128
+ 596:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1A0);
+ 598:	8f b5       	in	r24, 0x2f	; 47
+ 59a:	8f 7b       	andi	r24, 0xBF	; 191
+ 59c:	8f bd       	out	0x2f, r24	; 47
+ 59e:	08 95       	ret
+
+000005a0 <timer1PWMBOn>:
+
+void timer1PWMBOn(void)
+{
+	// turn on channel B (OC1B) PWM output
+	// set OC1B as non-inverted PWM
+	sbi(TCCR1A,COM1B1);
+ 5a0:	8f b5       	in	r24, 0x2f	; 47
+ 5a2:	80 62       	ori	r24, 0x20	; 32
+ 5a4:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1B0);
+ 5a6:	8f b5       	in	r24, 0x2f	; 47
+ 5a8:	8f 7e       	andi	r24, 0xEF	; 239
+ 5aa:	8f bd       	out	0x2f, r24	; 47
+ 5ac:	08 95       	ret
+
+000005ae <timer1PWMAOff>:
+
+void timer1PWMAOff(void)
+{
+	// turn off channel A (OC1A) PWM output
+	// set OC1A (OutputCompare action) to none
+	cbi(TCCR1A,COM1A1);
+ 5ae:	8f b5       	in	r24, 0x2f	; 47
+ 5b0:	8f 77       	andi	r24, 0x7F	; 127
+ 5b2:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1A0);
+ 5b4:	8f b5       	in	r24, 0x2f	; 47
+ 5b6:	8f 7b       	andi	r24, 0xBF	; 191
+ 5b8:	8f bd       	out	0x2f, r24	; 47
+ 5ba:	08 95       	ret
+
+000005bc <timer1PWMBOff>:
+
+void timer1PWMBOff(void)
+{
+	// turn off channel B (OC1B) PWM output
+	// set OC1B (OutputCompare action) to none
+	cbi(TCCR1A,COM1B1);
+ 5bc:	8f b5       	in	r24, 0x2f	; 47
+ 5be:	8f 7d       	andi	r24, 0xDF	; 223
+ 5c0:	8f bd       	out	0x2f, r24	; 47
+	cbi(TCCR1A,COM1B0);
+ 5c2:	8f b5       	in	r24, 0x2f	; 47
+ 5c4:	8f 7e       	andi	r24, 0xEF	; 239
+ 5c6:	8f bd       	out	0x2f, r24	; 47
+ 5c8:	08 95       	ret
+
+000005ca <timer1PWMASet>:
+	// NOTE:	pwmDuty should be in the range 0-255 for 8bit PWM
+	//			pwmDuty should be in the range 0-511 for 9bit PWM
+	//			pwmDuty should be in the range 0-1023 for 10bit PWM
+	//outp( (pwmDuty>>8), OCR1AH);		// set the high 8bits of OCR1A
+	//outp( (pwmDuty&0x00FF), OCR1AL);	// set the low 8bits of OCR1A
+	OCR1A = pwmDuty;
+ 5ca:	9b bd       	out	0x2b, r25	; 43
+ 5cc:	8a bd       	out	0x2a, r24	; 42
+ 5ce:	08 95       	ret
+
+000005d0 <timer1PWMBSet>:
+	// NOTE:	pwmDuty should be in the range 0-255 for 8bit PWM
+	//			pwmDuty should be in the range 0-511 for 9bit PWM
+	//			pwmDuty should be in the range 0-1023 for 10bit PWM
+	//outp( (pwmDuty>>8), OCR1BH);		// set the high 8bits of OCR1B
+	//outp( (pwmDuty&0x00FF), OCR1BL);	// set the low 8bits of OCR1B
+	OCR1B = pwmDuty;
+ 5d0:	99 bd       	out	0x29, r25	; 41
+ 5d2:	88 bd       	out	0x28, r24	; 40
+ 5d4:	08 95       	ret
+
+000005d6 <__vector_9>:
+}
+
+//! Interrupt handler for tcnt0 overflow interrupt
+TIMER_INTERRUPT_HANDLER(TIMER0_OVF_vect)
+{
+ 5d6:	1f 92       	push	r1
+ 5d8:	0f 92       	push	r0
+ 5da:	0f b6       	in	r0, 0x3f	; 63
+ 5dc:	0f 92       	push	r0
+ 5de:	11 24       	eor	r1, r1
+ 5e0:	2f 93       	push	r18
+ 5e2:	3f 93       	push	r19
+ 5e4:	4f 93       	push	r20
+ 5e6:	5f 93       	push	r21
+ 5e8:	6f 93       	push	r22
+ 5ea:	7f 93       	push	r23
+ 5ec:	8f 93       	push	r24
+ 5ee:	9f 93       	push	r25
+ 5f0:	af 93       	push	r26
+ 5f2:	bf 93       	push	r27
+ 5f4:	ef 93       	push	r30
+ 5f6:	ff 93       	push	r31
+	Timer0Reg0++;			// increment low-order counter
+ 5f8:	80 91 79 00 	lds	r24, 0x0079
+ 5fc:	90 91 7a 00 	lds	r25, 0x007A
+ 600:	a0 91 7b 00 	lds	r26, 0x007B
+ 604:	b0 91 7c 00 	lds	r27, 0x007C
+ 608:	01 96       	adiw	r24, 0x01	; 1
+ 60a:	a1 1d       	adc	r26, r1
+ 60c:	b1 1d       	adc	r27, r1
+ 60e:	80 93 79 00 	sts	0x0079, r24
+ 612:	90 93 7a 00 	sts	0x007A, r25
+ 616:	a0 93 7b 00 	sts	0x007B, r26
+ 61a:	b0 93 7c 00 	sts	0x007C, r27
+
+	// increment pause counter
+	TimerPauseReg++;
+ 61e:	80 91 7d 00 	lds	r24, 0x007D
+ 622:	90 91 7e 00 	lds	r25, 0x007E
+ 626:	a0 91 7f 00 	lds	r26, 0x007F
+ 62a:	b0 91 80 00 	lds	r27, 0x0080
+ 62e:	01 96       	adiw	r24, 0x01	; 1
+ 630:	a1 1d       	adc	r26, r1
+ 632:	b1 1d       	adc	r27, r1
+ 634:	80 93 7d 00 	sts	0x007D, r24
+ 638:	90 93 7e 00 	sts	0x007E, r25
+ 63c:	a0 93 7f 00 	sts	0x007F, r26
+ 640:	b0 93 80 00 	sts	0x0080, r27
+
+	// if a user function is defined, execute it too
+	if(TimerIntFunc[TIMER0OVERFLOW_INT])
+ 644:	80 91 6a 00 	lds	r24, 0x006A
+ 648:	90 91 6b 00 	lds	r25, 0x006B
+ 64c:	89 2b       	or	r24, r25
+ 64e:	29 f0       	breq	.+10     	; 0x65a <__vector_9+0x84>
+		TimerIntFunc[TIMER0OVERFLOW_INT]();
+ 650:	e0 91 6a 00 	lds	r30, 0x006A
+ 654:	f0 91 6b 00 	lds	r31, 0x006B
+ 658:	09 95       	icall
+}
+ 65a:	ff 91       	pop	r31
+ 65c:	ef 91       	pop	r30
+ 65e:	bf 91       	pop	r27
+ 660:	af 91       	pop	r26
+ 662:	9f 91       	pop	r25
+ 664:	8f 91       	pop	r24
+ 666:	7f 91       	pop	r23
+ 668:	6f 91       	pop	r22
+ 66a:	5f 91       	pop	r21
+ 66c:	4f 91       	pop	r20
+ 66e:	3f 91       	pop	r19
+ 670:	2f 91       	pop	r18
+ 672:	0f 90       	pop	r0
+ 674:	0f be       	out	0x3f, r0	; 63
+ 676:	0f 90       	pop	r0
+ 678:	1f 90       	pop	r1
+ 67a:	18 95       	reti
+
+0000067c <__vector_8>:
+
+//! Interrupt handler for tcnt1 overflow interrupt
+TIMER_INTERRUPT_HANDLER(TIMER1_OVF_vect)
+{
+ 67c:	1f 92       	push	r1
+ 67e:	0f 92       	push	r0
+ 680:	0f b6       	in	r0, 0x3f	; 63
+ 682:	0f 92       	push	r0
+ 684:	11 24       	eor	r1, r1
+ 686:	2f 93       	push	r18
+ 688:	3f 93       	push	r19
+ 68a:	4f 93       	push	r20
+ 68c:	5f 93       	push	r21
+ 68e:	6f 93       	push	r22
+ 690:	7f 93       	push	r23
+ 692:	8f 93       	push	r24
+ 694:	9f 93       	push	r25
+ 696:	af 93       	push	r26
+ 698:	bf 93       	push	r27
+ 69a:	ef 93       	push	r30
+ 69c:	ff 93       	push	r31
+	// if a user function is defined, execute it
+	if(TimerIntFunc[TIMER1OVERFLOW_INT])
+ 69e:	80 91 6c 00 	lds	r24, 0x006C
+ 6a2:	90 91 6d 00 	lds	r25, 0x006D
+ 6a6:	89 2b       	or	r24, r25
+ 6a8:	29 f0       	breq	.+10     	; 0x6b4 <__vector_8+0x38>
+		TimerIntFunc[TIMER1OVERFLOW_INT]();
+ 6aa:	e0 91 6c 00 	lds	r30, 0x006C
+ 6ae:	f0 91 6d 00 	lds	r31, 0x006D
+ 6b2:	09 95       	icall
+}
+ 6b4:	ff 91       	pop	r31
+ 6b6:	ef 91       	pop	r30
+ 6b8:	bf 91       	pop	r27
+ 6ba:	af 91       	pop	r26
+ 6bc:	9f 91       	pop	r25
+ 6be:	8f 91       	pop	r24
+ 6c0:	7f 91       	pop	r23
+ 6c2:	6f 91       	pop	r22
+ 6c4:	5f 91       	pop	r21
+ 6c6:	4f 91       	pop	r20
+ 6c8:	3f 91       	pop	r19
+ 6ca:	2f 91       	pop	r18
+ 6cc:	0f 90       	pop	r0
+ 6ce:	0f be       	out	0x3f, r0	; 63
+ 6d0:	0f 90       	pop	r0
+ 6d2:	1f 90       	pop	r1
+ 6d4:	18 95       	reti
+
+000006d6 <__vector_4>:
+
+#ifdef TCNT2	// support timer2 only if it exists
+//! Interrupt handler for tcnt2 overflow interrupt
+TIMER_INTERRUPT_HANDLER(TIMER2_OVF_vect)
+{
+ 6d6:	1f 92       	push	r1
+ 6d8:	0f 92       	push	r0
+ 6da:	0f b6       	in	r0, 0x3f	; 63
+ 6dc:	0f 92       	push	r0
+ 6de:	11 24       	eor	r1, r1
+ 6e0:	2f 93       	push	r18
+ 6e2:	3f 93       	push	r19
+ 6e4:	4f 93       	push	r20
+ 6e6:	5f 93       	push	r21
+ 6e8:	6f 93       	push	r22
+ 6ea:	7f 93       	push	r23
+ 6ec:	8f 93       	push	r24
+ 6ee:	9f 93       	push	r25
+ 6f0:	af 93       	push	r26
+ 6f2:	bf 93       	push	r27
+ 6f4:	ef 93       	push	r30
+ 6f6:	ff 93       	push	r31
+	Timer2Reg0++;			// increment low-order counter
+ 6f8:	80 91 81 00 	lds	r24, 0x0081
+ 6fc:	90 91 82 00 	lds	r25, 0x0082
+ 700:	a0 91 83 00 	lds	r26, 0x0083
+ 704:	b0 91 84 00 	lds	r27, 0x0084
+ 708:	01 96       	adiw	r24, 0x01	; 1
+ 70a:	a1 1d       	adc	r26, r1
+ 70c:	b1 1d       	adc	r27, r1
+ 70e:	80 93 81 00 	sts	0x0081, r24
+ 712:	90 93 82 00 	sts	0x0082, r25
+ 716:	a0 93 83 00 	sts	0x0083, r26
+ 71a:	b0 93 84 00 	sts	0x0084, r27
+
+	// if a user function is defined, execute it
+	if(TimerIntFunc[TIMER2OVERFLOW_INT])
+ 71e:	80 91 74 00 	lds	r24, 0x0074
+ 722:	90 91 75 00 	lds	r25, 0x0075
+ 726:	89 2b       	or	r24, r25
+ 728:	29 f0       	breq	.+10     	; 0x734 <__vector_4+0x5e>
+		TimerIntFunc[TIMER2OVERFLOW_INT]();
+ 72a:	e0 91 74 00 	lds	r30, 0x0074
+ 72e:	f0 91 75 00 	lds	r31, 0x0075
+ 732:	09 95       	icall
+}
+ 734:	ff 91       	pop	r31
+ 736:	ef 91       	pop	r30
+ 738:	bf 91       	pop	r27
+ 73a:	af 91       	pop	r26
+ 73c:	9f 91       	pop	r25
+ 73e:	8f 91       	pop	r24
+ 740:	7f 91       	pop	r23
+ 742:	6f 91       	pop	r22
+ 744:	5f 91       	pop	r21
+ 746:	4f 91       	pop	r20
+ 748:	3f 91       	pop	r19
+ 74a:	2f 91       	pop	r18
+ 74c:	0f 90       	pop	r0
+ 74e:	0f be       	out	0x3f, r0	; 63
+ 750:	0f 90       	pop	r0
+ 752:	1f 90       	pop	r1
+ 754:	18 95       	reti
+
+00000756 <__vector_6>:
+}
+#endif
+
+//! Interrupt handler for CutputCompare1A match (OC1A) interrupt
+TIMER_INTERRUPT_HANDLER(TIMER1_COMPA_vect)
+{
+ 756:	1f 92       	push	r1
+ 758:	0f 92       	push	r0
+ 75a:	0f b6       	in	r0, 0x3f	; 63
+ 75c:	0f 92       	push	r0
+ 75e:	11 24       	eor	r1, r1
+ 760:	2f 93       	push	r18
+ 762:	3f 93       	push	r19
+ 764:	4f 93       	push	r20
+ 766:	5f 93       	push	r21
+ 768:	6f 93       	push	r22
+ 76a:	7f 93       	push	r23
+ 76c:	8f 93       	push	r24
+ 76e:	9f 93       	push	r25
+ 770:	af 93       	push	r26
+ 772:	bf 93       	push	r27
+ 774:	ef 93       	push	r30
+ 776:	ff 93       	push	r31
+	// if a user function is defined, execute it
+	if(TimerIntFunc[TIMER1OUTCOMPAREA_INT])
+ 778:	80 91 6e 00 	lds	r24, 0x006E
+ 77c:	90 91 6f 00 	lds	r25, 0x006F
+ 780:	89 2b       	or	r24, r25
+ 782:	29 f0       	breq	.+10     	; 0x78e <__vector_6+0x38>
+		TimerIntFunc[TIMER1OUTCOMPAREA_INT]();
+ 784:	e0 91 6e 00 	lds	r30, 0x006E
+ 788:	f0 91 6f 00 	lds	r31, 0x006F
+ 78c:	09 95       	icall
+}
+ 78e:	ff 91       	pop	r31
+ 790:	ef 91       	pop	r30
+ 792:	bf 91       	pop	r27
+ 794:	af 91       	pop	r26
+ 796:	9f 91       	pop	r25
+ 798:	8f 91       	pop	r24
+ 79a:	7f 91       	pop	r23
+ 79c:	6f 91       	pop	r22
+ 79e:	5f 91       	pop	r21
+ 7a0:	4f 91       	pop	r20
+ 7a2:	3f 91       	pop	r19
+ 7a4:	2f 91       	pop	r18
+ 7a6:	0f 90       	pop	r0
+ 7a8:	0f be       	out	0x3f, r0	; 63
+ 7aa:	0f 90       	pop	r0
+ 7ac:	1f 90       	pop	r1
+ 7ae:	18 95       	reti
+
+000007b0 <__vector_7>:
+
+//! Interrupt handler for OutputCompare1B match (OC1B) interrupt
+TIMER_INTERRUPT_HANDLER(TIMER1_COMPB_vect)
+{
+ 7b0:	1f 92       	push	r1
+ 7b2:	0f 92       	push	r0
+ 7b4:	0f b6       	in	r0, 0x3f	; 63
+ 7b6:	0f 92       	push	r0
+ 7b8:	11 24       	eor	r1, r1
+ 7ba:	2f 93       	push	r18
+ 7bc:	3f 93       	push	r19
+ 7be:	4f 93       	push	r20
+ 7c0:	5f 93       	push	r21
+ 7c2:	6f 93       	push	r22
+ 7c4:	7f 93       	push	r23
+ 7c6:	8f 93       	push	r24
+ 7c8:	9f 93       	push	r25
+ 7ca:	af 93       	push	r26
+ 7cc:	bf 93       	push	r27
+ 7ce:	ef 93       	push	r30
+ 7d0:	ff 93       	push	r31
+	// if a user function is defined, execute it
+	if(TimerIntFunc[TIMER1OUTCOMPAREB_INT])
+ 7d2:	80 91 70 00 	lds	r24, 0x0070
+ 7d6:	90 91 71 00 	lds	r25, 0x0071
+ 7da:	89 2b       	or	r24, r25
+ 7dc:	29 f0       	breq	.+10     	; 0x7e8 <__vector_7+0x38>
+		TimerIntFunc[TIMER1OUTCOMPAREB_INT]();
+ 7de:	e0 91 70 00 	lds	r30, 0x0070
+ 7e2:	f0 91 71 00 	lds	r31, 0x0071
+ 7e6:	09 95       	icall
+}
+ 7e8:	ff 91       	pop	r31
+ 7ea:	ef 91       	pop	r30
+ 7ec:	bf 91       	pop	r27
+ 7ee:	af 91       	pop	r26
+ 7f0:	9f 91       	pop	r25
+ 7f2:	8f 91       	pop	r24
+ 7f4:	7f 91       	pop	r23
+ 7f6:	6f 91       	pop	r22
+ 7f8:	5f 91       	pop	r21
+ 7fa:	4f 91       	pop	r20
+ 7fc:	3f 91       	pop	r19
+ 7fe:	2f 91       	pop	r18
+ 800:	0f 90       	pop	r0
+ 802:	0f be       	out	0x3f, r0	; 63
+ 804:	0f 90       	pop	r0
+ 806:	1f 90       	pop	r1
+ 808:	18 95       	reti
+
+0000080a <__vector_5>:
+
+//! Interrupt handler for InputCapture1 (IC1) interrupt
+TIMER_INTERRUPT_HANDLER(TIMER1_CAPT_vect)
+{
+ 80a:	1f 92       	push	r1
+ 80c:	0f 92       	push	r0
+ 80e:	0f b6       	in	r0, 0x3f	; 63
+ 810:	0f 92       	push	r0
+ 812:	11 24       	eor	r1, r1
+ 814:	2f 93       	push	r18
+ 816:	3f 93       	push	r19
+ 818:	4f 93       	push	r20
+ 81a:	5f 93       	push	r21
+ 81c:	6f 93       	push	r22
+ 81e:	7f 93       	push	r23
+ 820:	8f 93       	push	r24
+ 822:	9f 93       	push	r25
+ 824:	af 93       	push	r26
+ 826:	bf 93       	push	r27
+ 828:	ef 93       	push	r30
+ 82a:	ff 93       	push	r31
+	// if a user function is defined, execute it
+	if(TimerIntFunc[TIMER1INPUTCAPTURE_INT])
+ 82c:	80 91 72 00 	lds	r24, 0x0072
+ 830:	90 91 73 00 	lds	r25, 0x0073
+ 834:	89 2b       	or	r24, r25
+ 836:	29 f0       	breq	.+10     	; 0x842 <__vector_5+0x38>
+		TimerIntFunc[TIMER1INPUTCAPTURE_INT]();
+ 838:	e0 91 72 00 	lds	r30, 0x0072
+ 83c:	f0 91 73 00 	lds	r31, 0x0073
+ 840:	09 95       	icall
+}
+ 842:	ff 91       	pop	r31
+ 844:	ef 91       	pop	r30
+ 846:	bf 91       	pop	r27
+ 848:	af 91       	pop	r26
+ 84a:	9f 91       	pop	r25
+ 84c:	8f 91       	pop	r24
+ 84e:	7f 91       	pop	r23
+ 850:	6f 91       	pop	r22
+ 852:	5f 91       	pop	r21
+ 854:	4f 91       	pop	r20
+ 856:	3f 91       	pop	r19
+ 858:	2f 91       	pop	r18
+ 85a:	0f 90       	pop	r0
+ 85c:	0f be       	out	0x3f, r0	; 63
+ 85e:	0f 90       	pop	r0
+ 860:	1f 90       	pop	r1
+ 862:	18 95       	reti
+
+00000864 <__vector_3>:
+
+//! Interrupt handler for OutputCompare2 match (OC2) interrupt
+TIMER_INTERRUPT_HANDLER(TIMER2_COMP_vect)
+{
+ 864:	1f 92       	push	r1
+ 866:	0f 92       	push	r0
+ 868:	0f b6       	in	r0, 0x3f	; 63
+ 86a:	0f 92       	push	r0
+ 86c:	11 24       	eor	r1, r1
+ 86e:	2f 93       	push	r18
+ 870:	3f 93       	push	r19
+ 872:	4f 93       	push	r20
+ 874:	5f 93       	push	r21
+ 876:	6f 93       	push	r22
+ 878:	7f 93       	push	r23
+ 87a:	8f 93       	push	r24
+ 87c:	9f 93       	push	r25
+ 87e:	af 93       	push	r26
+ 880:	bf 93       	push	r27
+ 882:	ef 93       	push	r30
+ 884:	ff 93       	push	r31
+	// if a user function is defined, execute it
+	if(TimerIntFunc[TIMER2OUTCOMPARE_INT])
+ 886:	80 91 76 00 	lds	r24, 0x0076
+ 88a:	90 91 77 00 	lds	r25, 0x0077
+ 88e:	89 2b       	or	r24, r25
+ 890:	29 f0       	breq	.+10     	; 0x89c <__vector_3+0x38>
+		TimerIntFunc[TIMER2OUTCOMPARE_INT]();
+ 892:	e0 91 76 00 	lds	r30, 0x0076
+ 896:	f0 91 77 00 	lds	r31, 0x0077
+ 89a:	09 95       	icall
+}
+ 89c:	ff 91       	pop	r31
+ 89e:	ef 91       	pop	r30
+ 8a0:	bf 91       	pop	r27
+ 8a2:	af 91       	pop	r26
+ 8a4:	9f 91       	pop	r25
+ 8a6:	8f 91       	pop	r24
+ 8a8:	7f 91       	pop	r23
+ 8aa:	6f 91       	pop	r22
+ 8ac:	5f 91       	pop	r21
+ 8ae:	4f 91       	pop	r20
+ 8b0:	3f 91       	pop	r19
+ 8b2:	2f 91       	pop	r18
+ 8b4:	0f 90       	pop	r0
+ 8b6:	0f be       	out	0x3f, r0	; 63
+ 8b8:	0f 90       	pop	r0
+ 8ba:	1f 90       	pop	r1
+ 8bc:	18 95       	reti
+
+000008be <main>:
+
+
+int main(void)
+{
+
+	init(); //Initialise things
+ 8be:	32 dc       	rcall	.-1948   	; 0x124 <init>
+					
+				//Read the average current value
+				s16 current = a2dConvert10bit(AVG_CURRENT_PIN);
+					
+				//Calculate the error from the target braking current
+				s16 error = BRAKING_CURRENT - current;
+ 8c0:	35 ed       	ldi	r19, 0xD5	; 213
+ 8c2:	e3 2e       	mov	r14, r19
+ 8c4:	ff 24       	eor	r15, r15
+ 8c6:	f3 94       	inc	r15
+					
+				//Scale the error and add to braking duty
+				braking_duty += error/10;
+ 8c8:	0a e0       	ldi	r16, 0x0A	; 10
+ 8ca:	10 e0       	ldi	r17, 0x00	; 0
+				{
+					braking_duty = 0;
+				}
+					
+				//Set the PWM duty
+				timer1PWMASet(TOP_COUNT - braking_duty); //inverted
+ 8cc:	c0 e8       	ldi	r28, 0x80	; 128
+ 8ce:	dc e0       	ldi	r29, 0x0C	; 12
+
+	init(); //Initialise things
+	for(;;)
+	{
+		//Check the estop
+		if(ESTOP_PRESSED)
+ 8d0:	83 9b       	sbis	0x10, 3	; 16
+ 8d2:	6a c0       	rjmp	.+212    	; 0x9a8 <main+0xea>
+			RESTART;
+			rgb(green);
+			//timer1PWMA(); //Restart PWM
+		}
+			
+		if(BRAKE_PRESSED)
+ 8d4:	82 99       	sbic	0x10, 2	; 16
+ 8d6:	25 c0       	rjmp	.+74     	; 0x922 <main+0x64>
+		{
+			//Start at the current duty cycle
+			s16 braking_duty = setpoint;
+ 8d8:	a0 90 64 00 	lds	r10, 0x0064
+ 8dc:	b0 90 65 00 	lds	r11, 0x0065
+				
+			//While the brake pedal is pressed do regenerative braking
+			while(BRAKE_PRESSED)
+ 8e0:	82 9b       	sbis	0x10, 2	; 16
+ 8e2:	07 c0       	rjmp	.+14     	; 0x8f2 <main+0x34>
+ 8e4:	1c c0       	rjmp	.+56     	; 0x91e <main+0x60>
+				{
+					braking_duty = 0;
+				}
+					
+				//Set the PWM duty
+				timer1PWMASet(TOP_COUNT - braking_duty); //inverted
+ 8e6:	ce 01       	movw	r24, r28
+ 8e8:	8a 19       	sub	r24, r10
+ 8ea:	9b 09       	sbc	r25, r11
+ 8ec:	6e de       	rcall	.-804    	; 0x5ca <timer1PWMASet>
+		{
+			//Start at the current duty cycle
+			s16 braking_duty = setpoint;
+				
+			//While the brake pedal is pressed do regenerative braking
+			while(BRAKE_PRESSED)
+ 8ee:	82 99       	sbic	0x10, 2	; 16
+ 8f0:	16 c0       	rjmp	.+44     	; 0x91e <main+0x60>
+			{
+				rgb(purple);
+ 8f2:	83 e0       	ldi	r24, 0x03	; 3
+ 8f4:	c2 db       	rcall	.-2172   	; 0x7a <rgb>
+					
+				//Read the average current value
+				s16 current = a2dConvert10bit(AVG_CURRENT_PIN);
+ 8f6:	81 e0       	ldi	r24, 0x01	; 1
+ 8f8:	5d dc       	rcall	.-1862   	; 0x1b4 <a2dConvert10bit>
+					
+				//Calculate the error from the target braking current
+				s16 error = BRAKING_CURRENT - current;
+ 8fa:	97 01       	movw	r18, r14
+ 8fc:	28 1b       	sub	r18, r24
+ 8fe:	39 0b       	sbc	r19, r25
+ 900:	c9 01       	movw	r24, r18
+					
+				//Scale the error and add to braking duty
+				braking_duty += error/10;
+ 902:	b8 01       	movw	r22, r16
+ 904:	69 d0       	rcall	.+210    	; 0x9d8 <__divmodhi4>
+ 906:	a6 0e       	add	r10, r22
+ 908:	b7 1e       	adc	r11, r23
+ 90a:	b7 fe       	sbrs	r11, 7
+ 90c:	ec cf       	rjmp	.-40     	; 0x8e6 <main+0x28>
+ 90e:	a1 2c       	mov	r10, r1
+ 910:	b1 2c       	mov	r11, r1
+				{
+					braking_duty = 0;
+				}
+					
+				//Set the PWM duty
+				timer1PWMASet(TOP_COUNT - braking_duty); //inverted
+ 912:	ce 01       	movw	r24, r28
+ 914:	8a 19       	sub	r24, r10
+ 916:	9b 09       	sbc	r25, r11
+ 918:	58 de       	rcall	.-848    	; 0x5ca <timer1PWMASet>
+		{
+			//Start at the current duty cycle
+			s16 braking_duty = setpoint;
+				
+			//While the brake pedal is pressed do regenerative braking
+			while(BRAKE_PRESSED)
+ 91a:	82 9b       	sbis	0x10, 2	; 16
+ 91c:	ea cf       	rjmp	.-44     	; 0x8f2 <main+0x34>
+					
+				//Set the PWM duty
+				timer1PWMASet(TOP_COUNT - braking_duty); //inverted
+				
+			}
+			rgb(green);
+ 91e:	81 e0       	ldi	r24, 0x01	; 1
+ 920:	ac db       	rcall	.-2216   	; 0x7a <rgb>
+		}
+			
+		//Check the average current
+		int current = a2dConvert10bit(AVG_CURRENT_PIN);
+ 922:	81 e0       	ldi	r24, 0x01	; 1
+ 924:	47 dc       	rcall	.-1906   	; 0x1b4 <a2dConvert10bit>
+ 926:	9c 01       	movw	r18, r24
+			
+		//Accumulate the amp-seconds the current is above the target current
+		ampSeconds += (current - TARGET_CURRENT);
+ 928:	ac 01       	movw	r20, r24
+ 92a:	4c 56       	subi	r20, 0x6C	; 108
+ 92c:	52 40       	sbci	r21, 0x02	; 2
+ 92e:	66 27       	eor	r22, r22
+ 930:	57 fd       	sbrc	r21, 7
+ 932:	60 95       	com	r22
+ 934:	76 2f       	mov	r23, r22
+ 936:	80 91 66 00 	lds	r24, 0x0066
+ 93a:	90 91 67 00 	lds	r25, 0x0067
+ 93e:	a0 91 68 00 	lds	r26, 0x0068
+ 942:	b0 91 69 00 	lds	r27, 0x0069
+ 946:	48 0f       	add	r20, r24
+ 948:	59 1f       	adc	r21, r25
+ 94a:	6a 1f       	adc	r22, r26
+ 94c:	7b 1f       	adc	r23, r27
+			
+		//Stop the amp-seconds from going negative
+		if(ampSeconds < 0) 
+ 94e:	77 fd       	sbrc	r23, 7
+ 950:	33 c0       	rjmp	.+102    	; 0x9b8 <main+0xfa>
+			
+		//Check the average current
+		int current = a2dConvert10bit(AVG_CURRENT_PIN);
+			
+		//Accumulate the amp-seconds the current is above the target current
+		ampSeconds += (current - TARGET_CURRENT);
+ 952:	40 93 66 00 	sts	0x0066, r20
+ 956:	50 93 67 00 	sts	0x0067, r21
+ 95a:	60 93 68 00 	sts	0x0068, r22
+ 95e:	70 93 69 00 	sts	0x0069, r23
+			ampSeconds = 0;
+		}
+			
+		//Shut down the controller if the current exceeds the maximum current
+		// or the amp-seconds has exceeded the maximum allowable value
+		if(ampSeconds > MAX_AMP_SECONDS || current > MAX_CURRENT)		
+ 962:	80 90 60 00 	lds	r8, 0x0060
+ 966:	90 90 61 00 	lds	r9, 0x0061
+ 96a:	a0 90 62 00 	lds	r10, 0x0062
+ 96e:	b0 90 63 00 	lds	r11, 0x0063
+ 972:	84 16       	cp	r8, r20
+ 974:	95 06       	cpc	r9, r21
+ 976:	a6 06       	cpc	r10, r22
+ 978:	b7 06       	cpc	r11, r23
+ 97a:	1c f0       	brlt	.+6      	; 0x982 <main+0xc4>
+ 97c:	21 30       	cpi	r18, 0x01	; 1
+ 97e:	33 40       	sbci	r19, 0x03	; 3
+ 980:	3c f1       	brlt	.+78     	; 0x9d0 <main+0x112>
+		{
+			SHUTDOWN;
+ 982:	8c 9a       	sbi	0x11, 4	; 17
+			rgb(blue);
+ 984:	82 e0       	ldi	r24, 0x02	; 2
+ 986:	79 db       	rcall	.-2318   	; 0x7a <rgb>
+			RESTART;
+			rgb(green);
+		}		
+	
+		//Set the PWM Duty
+		timer1PWMASet(TOP_COUNT - setpoint); //inverted
+ 988:	80 91 64 00 	lds	r24, 0x0064
+ 98c:	90 91 65 00 	lds	r25, 0x0065
+ 990:	9e 01       	movw	r18, r28
+ 992:	28 1b       	sub	r18, r24
+ 994:	39 0b       	sbc	r19, r25
+ 996:	c9 01       	movw	r24, r18
+ 998:	18 de       	rcall	.-976    	; 0x5ca <timer1PWMASet>
+	}
+ 99a:	9a cf       	rjmp	.-204    	; 0x8d0 <main+0x12>
+		if(ESTOP_PRESSED)
+		{
+			//Wait until it is released
+			while(ESTOP_PRESSED || BRAKE_PRESSED)
+			{
+				SHUTDOWN;
+ 99c:	8c 9a       	sbi	0x11, 4	; 17
+				rgb(red);
+ 99e:	80 e0       	ldi	r24, 0x00	; 0
+ 9a0:	6c db       	rcall	.-2344   	; 0x7a <rgb>
+				//timer1PWMAOff(); //Stop PWM
+				delay_us(100); //Wait
+ 9a2:	84 e6       	ldi	r24, 0x64	; 100
+ 9a4:	90 e0       	ldi	r25, 0x00	; 0
+ 9a6:	2f dc       	rcall	.-1954   	; 0x206 <delay_us>
+	{
+		//Check the estop
+		if(ESTOP_PRESSED)
+		{
+			//Wait until it is released
+			while(ESTOP_PRESSED || BRAKE_PRESSED)
+ 9a8:	83 9b       	sbis	0x10, 3	; 16
+ 9aa:	f8 cf       	rjmp	.-16     	; 0x99c <main+0xde>
+ 9ac:	82 9b       	sbis	0x10, 2	; 16
+ 9ae:	f6 cf       	rjmp	.-20     	; 0x99c <main+0xde>
+				SHUTDOWN;
+				rgb(red);
+				//timer1PWMAOff(); //Stop PWM
+				delay_us(100); //Wait
+			}
+			RESTART;
+ 9b0:	8c 98       	cbi	0x11, 4	; 17
+			rgb(green);
+ 9b2:	81 e0       	ldi	r24, 0x01	; 1
+ 9b4:	62 db       	rcall	.-2364   	; 0x7a <rgb>
+ 9b6:	8e cf       	rjmp	.-228    	; 0x8d4 <main+0x16>
+		ampSeconds += (current - TARGET_CURRENT);
+			
+		//Stop the amp-seconds from going negative
+		if(ampSeconds < 0) 
+		{
+			ampSeconds = 0;
+ 9b8:	10 92 66 00 	sts	0x0066, r1
+ 9bc:	10 92 67 00 	sts	0x0067, r1
+ 9c0:	10 92 68 00 	sts	0x0068, r1
+ 9c4:	10 92 69 00 	sts	0x0069, r1
+ 9c8:	40 e0       	ldi	r20, 0x00	; 0
+ 9ca:	50 e0       	ldi	r21, 0x00	; 0
+ 9cc:	ba 01       	movw	r22, r20
+ 9ce:	c9 cf       	rjmp	.-110    	; 0x962 <main+0xa4>
+			SHUTDOWN;
+			rgb(blue);
+		}
+		else 
+		{
+			RESTART;
+ 9d0:	8c 98       	cbi	0x11, 4	; 17
+			rgb(green);
+ 9d2:	81 e0       	ldi	r24, 0x01	; 1
+ 9d4:	52 db       	rcall	.-2396   	; 0x7a <rgb>
+ 9d6:	d8 cf       	rjmp	.-80     	; 0x988 <main+0xca>
+
+000009d8 <__divmodhi4>:
+ 9d8:	97 fb       	bst	r25, 7
+ 9da:	07 2e       	mov	r0, r23
+ 9dc:	16 f4       	brtc	.+4      	; 0x9e2 <__divmodhi4+0xa>
+ 9de:	00 94       	com	r0
+ 9e0:	06 d0       	rcall	.+12     	; 0x9ee <__divmodhi4_neg1>
+ 9e2:	77 fd       	sbrc	r23, 7
+ 9e4:	08 d0       	rcall	.+16     	; 0x9f6 <__divmodhi4_neg2>
+ 9e6:	5e d0       	rcall	.+188    	; 0xaa4 <__udivmodhi4>
+ 9e8:	07 fc       	sbrc	r0, 7
+ 9ea:	05 d0       	rcall	.+10     	; 0x9f6 <__divmodhi4_neg2>
+ 9ec:	3e f4       	brtc	.+14     	; 0x9fc <__divmodhi4_exit>
+
+000009ee <__divmodhi4_neg1>:
+ 9ee:	90 95       	com	r25
+ 9f0:	81 95       	neg	r24
+ 9f2:	9f 4f       	sbci	r25, 0xFF	; 255
+ 9f4:	08 95       	ret
+
+000009f6 <__divmodhi4_neg2>:
+ 9f6:	70 95       	com	r23
+ 9f8:	61 95       	neg	r22
+ 9fa:	7f 4f       	sbci	r23, 0xFF	; 255
+
+000009fc <__divmodhi4_exit>:
+ 9fc:	08 95       	ret
+
+000009fe <__udivmodsi4>:
+ 9fe:	a1 e2       	ldi	r26, 0x21	; 33
+ a00:	1a 2e       	mov	r1, r26
+ a02:	aa 1b       	sub	r26, r26
+ a04:	bb 1b       	sub	r27, r27
+ a06:	fd 01       	movw	r30, r26
+ a08:	0d c0       	rjmp	.+26     	; 0xa24 <__udivmodsi4_ep>
+
+00000a0a <__udivmodsi4_loop>:
+ a0a:	aa 1f       	adc	r26, r26
+ a0c:	bb 1f       	adc	r27, r27
+ a0e:	ee 1f       	adc	r30, r30
+ a10:	ff 1f       	adc	r31, r31
+ a12:	a2 17       	cp	r26, r18
+ a14:	b3 07       	cpc	r27, r19
+ a16:	e4 07       	cpc	r30, r20
+ a18:	f5 07       	cpc	r31, r21
+ a1a:	20 f0       	brcs	.+8      	; 0xa24 <__udivmodsi4_ep>
+ a1c:	a2 1b       	sub	r26, r18
+ a1e:	b3 0b       	sbc	r27, r19
+ a20:	e4 0b       	sbc	r30, r20
+ a22:	f5 0b       	sbc	r31, r21
+
+00000a24 <__udivmodsi4_ep>:
+ a24:	66 1f       	adc	r22, r22
+ a26:	77 1f       	adc	r23, r23
+ a28:	88 1f       	adc	r24, r24
+ a2a:	99 1f       	adc	r25, r25
+ a2c:	1a 94       	dec	r1
+ a2e:	69 f7       	brne	.-38     	; 0xa0a <__udivmodsi4_loop>
+ a30:	60 95       	com	r22
+ a32:	70 95       	com	r23
+ a34:	80 95       	com	r24
+ a36:	90 95       	com	r25
+ a38:	9b 01       	movw	r18, r22
+ a3a:	ac 01       	movw	r20, r24
+ a3c:	bd 01       	movw	r22, r26
+ a3e:	cf 01       	movw	r24, r30
+ a40:	08 95       	ret
+
+00000a42 <__divmodsi4>:
+ a42:	05 2e       	mov	r0, r21
+ a44:	97 fb       	bst	r25, 7
+ a46:	16 f4       	brtc	.+4      	; 0xa4c <__divmodsi4+0xa>
+ a48:	00 94       	com	r0
+ a4a:	06 d0       	rcall	.+12     	; 0xa58 <__divmodsi4_neg1>
+ a4c:	57 fd       	sbrc	r21, 7
+ a4e:	0c d0       	rcall	.+24     	; 0xa68 <__divmodsi4_neg2>
+ a50:	d6 df       	rcall	.-84     	; 0x9fe <__udivmodsi4>
+ a52:	07 fc       	sbrc	r0, 7
+ a54:	09 d0       	rcall	.+18     	; 0xa68 <__divmodsi4_neg2>
+ a56:	7e f4       	brtc	.+30     	; 0xa76 <__divmodsi4_exit>
+
+00000a58 <__divmodsi4_neg1>:
+ a58:	90 95       	com	r25
+ a5a:	80 95       	com	r24
+ a5c:	70 95       	com	r23
+ a5e:	61 95       	neg	r22
+ a60:	7f 4f       	sbci	r23, 0xFF	; 255
+ a62:	8f 4f       	sbci	r24, 0xFF	; 255
+ a64:	9f 4f       	sbci	r25, 0xFF	; 255
+ a66:	08 95       	ret
+
+00000a68 <__divmodsi4_neg2>:
+ a68:	50 95       	com	r21
+ a6a:	40 95       	com	r20
+ a6c:	30 95       	com	r19
+ a6e:	21 95       	neg	r18
+ a70:	3f 4f       	sbci	r19, 0xFF	; 255
+ a72:	4f 4f       	sbci	r20, 0xFF	; 255
+ a74:	5f 4f       	sbci	r21, 0xFF	; 255
+
+00000a76 <__divmodsi4_exit>:
+ a76:	08 95       	ret
+
+00000a78 <__umulhisi3>:
+ a78:	a2 9f       	mul	r26, r18
+ a7a:	b0 01       	movw	r22, r0
+ a7c:	b3 9f       	mul	r27, r19
+ a7e:	c0 01       	movw	r24, r0
+ a80:	a3 9f       	mul	r26, r19
+ a82:	01 d0       	rcall	.+2      	; 0xa86 <__umulhisi3+0xe>
+ a84:	b2 9f       	mul	r27, r18
+ a86:	70 0d       	add	r23, r0
+ a88:	81 1d       	adc	r24, r1
+ a8a:	11 24       	eor	r1, r1
+ a8c:	91 1d       	adc	r25, r1
+ a8e:	08 95       	ret
+
+00000a90 <__muluhisi3>:
+ a90:	f3 df       	rcall	.-26     	; 0xa78 <__umulhisi3>
+ a92:	a5 9f       	mul	r26, r21
+ a94:	90 0d       	add	r25, r0
+ a96:	b4 9f       	mul	r27, r20
+ a98:	90 0d       	add	r25, r0
+ a9a:	a4 9f       	mul	r26, r20
+ a9c:	80 0d       	add	r24, r0
+ a9e:	91 1d       	adc	r25, r1
+ aa0:	11 24       	eor	r1, r1
+ aa2:	08 95       	ret
+
+00000aa4 <__udivmodhi4>:
+ aa4:	aa 1b       	sub	r26, r26
+ aa6:	bb 1b       	sub	r27, r27
+ aa8:	51 e1       	ldi	r21, 0x11	; 17
+ aaa:	07 c0       	rjmp	.+14     	; 0xaba <__udivmodhi4_ep>
+
+00000aac <__udivmodhi4_loop>:
+ aac:	aa 1f       	adc	r26, r26
+ aae:	bb 1f       	adc	r27, r27
+ ab0:	a6 17       	cp	r26, r22
+ ab2:	b7 07       	cpc	r27, r23
+ ab4:	10 f0       	brcs	.+4      	; 0xaba <__udivmodhi4_ep>
+ ab6:	a6 1b       	sub	r26, r22
+ ab8:	b7 0b       	sbc	r27, r23
+
+00000aba <__udivmodhi4_ep>:
+ aba:	88 1f       	adc	r24, r24
+ abc:	99 1f       	adc	r25, r25
+ abe:	5a 95       	dec	r21
+ ac0:	a9 f7       	brne	.-22     	; 0xaac <__udivmodhi4_loop>
+ ac2:	80 95       	com	r24
+ ac4:	90 95       	com	r25
+ ac6:	bc 01       	movw	r22, r24
+ ac8:	cd 01       	movw	r24, r26
+ aca:	08 95       	ret
+
+00000acc <_exit>:
+ acc:	f8 94       	cli
+
+00000ace <__stop_program>:
+ ace:	ff cf       	rjmp	.-2      	; 0xace <__stop_program>

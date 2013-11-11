@@ -1,0 +1,2437 @@
+   1               		.file	"timer_2013.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	delay_us
+  12               	delay_us:
+  13               	.LFB1:
+  14               		.file 1 "timer_2013.c"
+   1:timer_2013.c  **** /*! \file timer.c \brief System Timer function library. */
+   2:timer_2013.c  **** //*****************************************************************************
+   3:timer_2013.c  **** //
+   4:timer_2013.c  **** // File Name	: 'timer.c'
+   5:timer_2013.c  **** // Title		: System Timer function library
+   6:timer_2013.c  **** // Author		: Pascal Stang - Copyright (C) 2000-2002
+   7:timer_2013.c  **** // Created		: 11/22/2000
+   8:timer_2013.c  **** // Revised		: 07/09/2003
+   9:timer_2013.c  **** // Version		: 1.1
+  10:timer_2013.c  **** // Target MCU	: Atmel AVR Series
+  11:timer_2013.c  **** // Editor Tabs	: 4
+  12:timer_2013.c  **** //
+  13:timer_2013.c  **** // This code is distributed under the GNU Public License
+  14:timer_2013.c  **** //		which can be found at http://www.gnu.org/licenses/gpl.txt
+  15:timer_2013.c  **** //
+  16:timer_2013.c  **** //*****************************************************************************
+  17:timer_2013.c  **** 
+  18:timer_2013.c  **** #ifndef WIN32
+  19:timer_2013.c  **** 	#include <avr/io.h>
+  20:timer_2013.c  **** 	#include <avr/signal.h>
+  21:timer_2013.c  **** 	#include <avr/interrupt.h>
+  22:timer_2013.c  **** 	#include <avr/pgmspace.h>
+  23:timer_2013.c  **** 	#include <avr/sleep.h>
+  24:timer_2013.c  **** #endif
+  25:timer_2013.c  **** 
+  26:timer_2013.c  **** #include "global.h"
+  27:timer_2013.c  **** #include "timer.h"
+  28:timer_2013.c  **** 
+  29:timer_2013.c  **** // Program ROM constants
+  30:timer_2013.c  **** // the prescale division values stored in order of timer control register index
+  31:timer_2013.c  **** // STOP, CLK, CLK/8, CLK/64, CLK/256, CLK/1024
+  32:timer_2013.c  **** const unsigned short __attribute__ ((progmem)) TimerPrescaleFactor[] = {0,1,8,64,256,1024};
+  33:timer_2013.c  **** // the prescale division values stored in order of timer control register index
+  34:timer_2013.c  **** // STOP, CLK, CLK/8, CLK/32, CLK/64, CLK/128, CLK/256, CLK/1024
+  35:timer_2013.c  **** const unsigned short __attribute__ ((progmem)) TimerRTCPrescaleFactor[] = {0,1,8,32,64,128,256,1024
+  36:timer_2013.c  **** 
+  37:timer_2013.c  **** // Global variables
+  38:timer_2013.c  **** // time registers
+  39:timer_2013.c  **** volatile unsigned long TimerPauseReg;
+  40:timer_2013.c  **** volatile unsigned long Timer0Reg0;
+  41:timer_2013.c  **** volatile unsigned long Timer2Reg0;
+  42:timer_2013.c  **** 
+  43:timer_2013.c  **** typedef void (*voidFuncPtr)(void);
+  44:timer_2013.c  **** volatile static voidFuncPtr TimerIntFunc[TIMER_NUM_INTERRUPTS];
+  45:timer_2013.c  **** 
+  46:timer_2013.c  **** // delay for a minimum of <us> microseconds 
+  47:timer_2013.c  **** // the time resolution is dependent on the time the loop takes 
+  48:timer_2013.c  **** // e.g. with 4Mhz and 5 cycles per loop, the resolution is 1.25 us 
+  49:timer_2013.c  **** void delay_us(unsigned short time_us) 
+  50:timer_2013.c  **** {
+  15               		.loc 1 50 0
+  16               		.cfi_startproc
+  17               	.LVL0:
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  22 0000 0895      		ret
+  23               		.cfi_endproc
+  24               	.LFE1:
+  26               	.global	timerInit
+  28               	timerInit:
+  29               	.LFB2:
+  51:timer_2013.c  **** 	unsigned short delay_loops;
+  52:timer_2013.c  **** 	register unsigned short i;
+  53:timer_2013.c  **** 
+  54:timer_2013.c  **** 	delay_loops = (time_us+3)/5*CYCLES_PER_US; // +3 for rounding up (dirty) 
+  55:timer_2013.c  **** 
+  56:timer_2013.c  **** 	// one loop takes 5 cpu cycles 
+  57:timer_2013.c  **** 	for (i=0; i < delay_loops; i++) {};
+  58:timer_2013.c  **** }
+  59:timer_2013.c  **** /*
+  60:timer_2013.c  **** void delay_ms(unsigned char time_ms)
+  61:timer_2013.c  **** {
+  62:timer_2013.c  **** 	unsigned short delay_count = F_CPU / 4000;
+  63:timer_2013.c  **** 
+  64:timer_2013.c  **** 	unsigned short cnt;
+  65:timer_2013.c  **** 	asm volatile ("\n"
+  66:timer_2013.c  ****                   "L_dl1%=:\n\t"
+  67:timer_2013.c  ****                   "mov %A0, %A2\n\t"
+  68:timer_2013.c  ****                   "mov %B0, %B2\n"
+  69:timer_2013.c  ****                   "L_dl2%=:\n\t"
+  70:timer_2013.c  ****                   "sbiw %A0, 1\n\t"
+  71:timer_2013.c  ****                   "brne L_dl2%=\n\t"
+  72:timer_2013.c  ****                   "dec %1\n\t" "brne L_dl1%=\n\t":"=&w" (cnt)
+  73:timer_2013.c  ****                   :"r"(time_ms), "r"((unsigned short) (delay_count))
+  74:timer_2013.c  **** 	);
+  75:timer_2013.c  **** }
+  76:timer_2013.c  **** */
+  77:timer_2013.c  **** void timerInit(void)
+  78:timer_2013.c  **** {
+  30               		.loc 1 78 0
+  31               		.cfi_startproc
+  32               	/* prologue: function */
+  33               	/* frame size = 0 */
+  34               	/* stack size = 0 */
+  35               	.L__stack_usage = 0
+  36               	.LVL1:
+  37               	.LBB37:
+  38               	.LBB38:
+  79:timer_2013.c  **** 	u08 intNum;
+  80:timer_2013.c  **** 	// detach all user functions from interrupts
+  81:timer_2013.c  **** 	for(intNum=0; intNum<TIMER_NUM_INTERRUPTS; intNum++)
+  82:timer_2013.c  **** 		timerDetach(intNum);
+  83:timer_2013.c  **** 
+  84:timer_2013.c  **** 	// initialize all timers
+  85:timer_2013.c  **** 	timer0Init();
+  86:timer_2013.c  **** 	timer1Init();
+  87:timer_2013.c  **** 	#ifdef TCNT2	// support timer2 only if it exists
+  88:timer_2013.c  **** 	timer2Init();
+  89:timer_2013.c  **** 	#endif
+  90:timer_2013.c  **** 	// enable interrupts
+  91:timer_2013.c  **** 	sei();
+  92:timer_2013.c  **** }
+  93:timer_2013.c  **** 
+  94:timer_2013.c  **** void timer0Init()
+  95:timer_2013.c  **** {
+  96:timer_2013.c  **** 	// initialize timer 0
+  97:timer_2013.c  **** 	timer0SetPrescaler( TIMER0PRESCALE );	// set prescaler
+  98:timer_2013.c  **** 	outb(TCNT0, 0);							// reset TCNT0
+  99:timer_2013.c  **** 	sbi(TIMSK, TOIE0);						// enable TCNT0 overflow interrupt
+ 100:timer_2013.c  **** 
+ 101:timer_2013.c  **** 	timer0ClearOverflowCount();				// initialize time registers
+ 102:timer_2013.c  **** }
+ 103:timer_2013.c  **** 
+ 104:timer_2013.c  **** void timer1Init(void)
+ 105:timer_2013.c  **** {
+ 106:timer_2013.c  **** 	// initialize timer 1
+ 107:timer_2013.c  **** 	timer1SetPrescaler( TIMER1PRESCALE );	// set prescaler
+ 108:timer_2013.c  **** 	outb(TCNT1H, 0);						// reset TCNT1
+ 109:timer_2013.c  **** 	outb(TCNT1L, 0);
+ 110:timer_2013.c  **** 	sbi(TIMSK, TOIE1);						// enable TCNT1 overflow
+ 111:timer_2013.c  **** }
+ 112:timer_2013.c  **** 
+ 113:timer_2013.c  **** #ifdef TCNT2	// support timer2 only if it exists
+ 114:timer_2013.c  **** void timer2Init(void)
+ 115:timer_2013.c  **** {
+ 116:timer_2013.c  **** 	// initialize timer 2
+ 117:timer_2013.c  **** 	timer2SetPrescaler( TIMER2PRESCALE );	// set prescaler
+ 118:timer_2013.c  **** 	outb(TCNT2, 0);							// reset TCNT2
+ 119:timer_2013.c  **** 	sbi(TIMSK, TOIE2);						// enable TCNT2 overflow
+ 120:timer_2013.c  **** 
+ 121:timer_2013.c  **** 	timer2ClearOverflowCount();				// initialize time registers
+ 122:timer_2013.c  **** }
+ 123:timer_2013.c  **** #endif
+ 124:timer_2013.c  **** 
+ 125:timer_2013.c  **** void timer0SetPrescaler(u08 prescale)
+ 126:timer_2013.c  **** {
+ 127:timer_2013.c  **** 	// set prescaler on timer 0
+ 128:timer_2013.c  **** 	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+ 129:timer_2013.c  **** }
+ 130:timer_2013.c  **** 
+ 131:timer_2013.c  **** void timer1SetPrescaler(u08 prescale)
+ 132:timer_2013.c  **** {
+ 133:timer_2013.c  **** 	// set prescaler on timer 1
+ 134:timer_2013.c  **** 	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+ 135:timer_2013.c  **** }
+ 136:timer_2013.c  **** 
+ 137:timer_2013.c  **** #ifdef TCNT2	// support timer2 only if it exists
+ 138:timer_2013.c  **** void timer2SetPrescaler(u08 prescale)
+ 139:timer_2013.c  **** {
+ 140:timer_2013.c  **** 	// set prescaler on timer 2
+ 141:timer_2013.c  **** 	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 142:timer_2013.c  **** }
+ 143:timer_2013.c  **** #endif
+ 144:timer_2013.c  **** 
+ 145:timer_2013.c  **** u16 timer0GetPrescaler(void)
+ 146:timer_2013.c  **** {
+ 147:timer_2013.c  **** 	// get the current prescaler setting
+ 148:timer_2013.c  **** 	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR0) & TIMER_PRESCALE_MASK)));
+ 149:timer_2013.c  **** }
+ 150:timer_2013.c  **** 
+ 151:timer_2013.c  **** u16 timer1GetPrescaler(void)
+ 152:timer_2013.c  **** {
+ 153:timer_2013.c  **** 	// get the current prescaler setting
+ 154:timer_2013.c  **** 	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR1B) & TIMER_PRESCALE_MASK)));
+ 155:timer_2013.c  **** }
+ 156:timer_2013.c  **** 
+ 157:timer_2013.c  **** #ifdef TCNT2	// support timer2 only if it exists
+ 158:timer_2013.c  **** u16 timer2GetPrescaler(void)
+ 159:timer_2013.c  **** {
+ 160:timer_2013.c  **** 	//TODO: can we assume for all 3-timer AVR processors,
+ 161:timer_2013.c  **** 	// that timer2 is the RTC timer?
+ 162:timer_2013.c  **** 
+ 163:timer_2013.c  **** 	// get the current prescaler setting
+ 164:timer_2013.c  **** 	return (pgm_read_word(TimerRTCPrescaleFactor+(inb(TCCR2) & TIMER_PRESCALE_MASK)));
+ 165:timer_2013.c  **** }
+ 166:timer_2013.c  **** #endif
+ 167:timer_2013.c  **** 
+ 168:timer_2013.c  **** void timerAttach(u08 interruptNum, void (*userFunc)(void) )
+ 169:timer_2013.c  **** {
+ 170:timer_2013.c  **** 	// make sure the interrupt number is within bounds
+ 171:timer_2013.c  **** 	if(interruptNum < TIMER_NUM_INTERRUPTS)
+ 172:timer_2013.c  **** 	{
+ 173:timer_2013.c  **** 		// set the interrupt function to run
+ 174:timer_2013.c  **** 		// the supplied user's function
+ 175:timer_2013.c  **** 		TimerIntFunc[interruptNum] = userFunc;
+ 176:timer_2013.c  **** 	}
+ 177:timer_2013.c  **** }
+ 178:timer_2013.c  **** 
+ 179:timer_2013.c  **** void timerDetach(u08 interruptNum)
+ 180:timer_2013.c  **** {
+ 181:timer_2013.c  **** 	// make sure the interrupt number is within bounds
+ 182:timer_2013.c  **** 	if(interruptNum < TIMER_NUM_INTERRUPTS)
+ 183:timer_2013.c  **** 	{
+ 184:timer_2013.c  **** 		// set the interrupt function to run nothing
+ 185:timer_2013.c  **** 		TimerIntFunc[interruptNum] = 0;
+  39               		.loc 1 185 0
+  40 0002 1092 0000 		sts TimerIntFunc+1,__zero_reg__
+  41 0006 1092 0000 		sts TimerIntFunc,__zero_reg__
+  42               	.LVL2:
+  43 000a 1092 0000 		sts TimerIntFunc+2+1,__zero_reg__
+  44 000e 1092 0000 		sts TimerIntFunc+2,__zero_reg__
+  45               	.LVL3:
+  46 0012 1092 0000 		sts TimerIntFunc+4+1,__zero_reg__
+  47 0016 1092 0000 		sts TimerIntFunc+4,__zero_reg__
+  48               	.LVL4:
+  49 001a 1092 0000 		sts TimerIntFunc+6+1,__zero_reg__
+  50 001e 1092 0000 		sts TimerIntFunc+6,__zero_reg__
+  51               	.LVL5:
+  52 0022 1092 0000 		sts TimerIntFunc+8+1,__zero_reg__
+  53 0026 1092 0000 		sts TimerIntFunc+8,__zero_reg__
+  54               	.LVL6:
+  55 002a 1092 0000 		sts TimerIntFunc+10+1,__zero_reg__
+  56 002e 1092 0000 		sts TimerIntFunc+10,__zero_reg__
+  57               	.LVL7:
+  58 0032 1092 0000 		sts TimerIntFunc+12+1,__zero_reg__
+  59 0036 1092 0000 		sts TimerIntFunc+12,__zero_reg__
+  60               	.LVL8:
+  61               	.LBE38:
+  62               	.LBE37:
+  63               	.LBB39:
+  64               	.LBB40:
+  65               	.LBB41:
+  66               	.LBB42:
+ 128:timer_2013.c  **** 	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+  67               		.loc 1 128 0
+  68 003a 83B7      		in r24,0x33
+  69 003c 887F      		andi r24,lo8(-8)
+  70 003e 8260      		ori r24,lo8(2)
+  71 0040 83BF      		out 0x33,r24
+  72               	.LBE42:
+  73               	.LBE41:
+  98:timer_2013.c  **** 	outb(TCNT0, 0);							// reset TCNT0
+  74               		.loc 1 98 0
+  75 0042 12BE      		out 0x32,__zero_reg__
+  99:timer_2013.c  **** 	sbi(TIMSK, TOIE0);						// enable TCNT0 overflow interrupt
+  76               		.loc 1 99 0
+  77 0044 89B7      		in r24,0x39
+  78 0046 8160      		ori r24,lo8(1)
+  79 0048 89BF      		out 0x39,r24
+  80               	.LBB43:
+  81               	.LBB44:
+ 186:timer_2013.c  **** 	}
+ 187:timer_2013.c  **** }
+ 188:timer_2013.c  **** /*
+ 189:timer_2013.c  **** u32 timerMsToTics(u16 ms)
+ 190:timer_2013.c  **** {
+ 191:timer_2013.c  **** 	// calculate the prescaler division rate
+ 192:timer_2013.c  **** 	u16 prescaleDiv = 1<<(pgm_read_byte(TimerPrescaleFactor+inb(TCCR0)));
+ 193:timer_2013.c  **** 	// calculate the number of timer tics in x milliseconds
+ 194:timer_2013.c  **** 	return (ms*(F_CPU/(prescaleDiv*256)))/1000;
+ 195:timer_2013.c  **** }
+ 196:timer_2013.c  **** 
+ 197:timer_2013.c  **** u16 timerTicsToMs(u32 tics)
+ 198:timer_2013.c  **** {
+ 199:timer_2013.c  **** 	// calculate the prescaler division rate
+ 200:timer_2013.c  **** 	u16 prescaleDiv = 1<<(pgm_read_byte(TimerPrescaleFactor+inb(TCCR0)));
+ 201:timer_2013.c  **** 	// calculate the number of milliseconds in x timer tics
+ 202:timer_2013.c  **** 	return (tics*1000*(prescaleDiv*256))/F_CPU;
+ 203:timer_2013.c  **** }
+ 204:timer_2013.c  **** */
+ 205:timer_2013.c  **** void timerPause(unsigned short pause_ms)
+ 206:timer_2013.c  **** {
+ 207:timer_2013.c  **** 	// pauses for exactly <pause_ms> number of milliseconds
+ 208:timer_2013.c  **** 	u08 timerThres;
+ 209:timer_2013.c  **** 	u32 ticRateHz;
+ 210:timer_2013.c  **** 	u32 pause;
+ 211:timer_2013.c  **** 
+ 212:timer_2013.c  **** 	// capture current pause timer value
+ 213:timer_2013.c  **** 	timerThres = inb(TCNT0);
+ 214:timer_2013.c  **** 	// reset pause timer overflow count
+ 215:timer_2013.c  **** 	TimerPauseReg = 0;
+ 216:timer_2013.c  **** 	// calculate delay for [pause_ms] milliseconds
+ 217:timer_2013.c  **** 	// prescaler division = 1<<(pgm_read_byte(TimerPrescaleFactor+inb(TCCR0)))
+ 218:timer_2013.c  **** 	ticRateHz = F_CPU/timer0GetPrescaler();
+ 219:timer_2013.c  **** 	// precision management
+ 220:timer_2013.c  **** 	// prevent overflow and precision underflow
+ 221:timer_2013.c  **** 	//	-could add more conditions to improve accuracy
+ 222:timer_2013.c  **** 	if( ((ticRateHz < 429497) && (pause_ms <= 10000)) )
+ 223:timer_2013.c  **** 		pause = (pause_ms*ticRateHz)/1000;
+ 224:timer_2013.c  **** 	else
+ 225:timer_2013.c  **** 		pause = pause_ms*(ticRateHz/1000);
+ 226:timer_2013.c  **** 
+ 227:timer_2013.c  **** 	// loop until time expires
+ 228:timer_2013.c  **** 	while( ((TimerPauseReg<<8) | inb(TCNT0)) < (pause+timerThres) )
+ 229:timer_2013.c  **** 	{
+ 230:timer_2013.c  **** 		if( TimerPauseReg < (pause>>8));
+ 231:timer_2013.c  **** 		{
+ 232:timer_2013.c  **** 			// save power by idling the processor
+ 233:timer_2013.c  **** 			set_sleep_mode(SLEEP_MODE_IDLE);
+ 234:timer_2013.c  **** 			sleep_mode();
+ 235:timer_2013.c  **** 		}
+ 236:timer_2013.c  **** 	}
+ 237:timer_2013.c  **** 
+ 238:timer_2013.c  **** 	/* old inaccurate code, for reference
+ 239:timer_2013.c  **** 	
+ 240:timer_2013.c  **** 	// calculate delay for [pause_ms] milliseconds
+ 241:timer_2013.c  **** 	u16 prescaleDiv = 1<<(pgm_read_byte(TimerPrescaleFactor+inb(TCCR0)));
+ 242:timer_2013.c  **** 	u32 pause = (pause_ms*(F_CPU/(prescaleDiv*256)))/1000;
+ 243:timer_2013.c  **** 	
+ 244:timer_2013.c  **** 	TimerPauseReg = 0;
+ 245:timer_2013.c  **** 	while(TimerPauseReg < pause);
+ 246:timer_2013.c  **** 
+ 247:timer_2013.c  **** 	*/
+ 248:timer_2013.c  **** }
+ 249:timer_2013.c  **** 
+ 250:timer_2013.c  **** void timer0ClearOverflowCount(void)
+ 251:timer_2013.c  **** {
+ 252:timer_2013.c  **** 	// clear the timer overflow counter registers
+ 253:timer_2013.c  **** 	Timer0Reg0 = 0;	// initialize time registers
+  82               		.loc 1 253 0
+  83 004a 1092 0000 		sts Timer0Reg0,__zero_reg__
+  84 004e 1092 0000 		sts Timer0Reg0+1,__zero_reg__
+  85 0052 1092 0000 		sts Timer0Reg0+2,__zero_reg__
+  86 0056 1092 0000 		sts Timer0Reg0+3,__zero_reg__
+  87               	.LVL9:
+  88               	.LBE44:
+  89               	.LBE43:
+  90               	.LBE40:
+  91               	.LBE39:
+  92               	.LBB45:
+  93               	.LBB46:
+  94               	.LBB47:
+  95               	.LBB48:
+ 134:timer_2013.c  **** 	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+  96               		.loc 1 134 0
+  97 005a 8EB5      		in r24,0x2e
+  98 005c 887F      		andi r24,lo8(-8)
+  99 005e 8360      		ori r24,lo8(3)
+ 100 0060 8EBD      		out 0x2e,r24
+ 101               	.LBE48:
+ 102               	.LBE47:
+ 108:timer_2013.c  **** 	outb(TCNT1H, 0);						// reset TCNT1
+ 103               		.loc 1 108 0
+ 104 0062 1DBC      		out 0x2d,__zero_reg__
+ 109:timer_2013.c  **** 	outb(TCNT1L, 0);
+ 105               		.loc 1 109 0
+ 106 0064 1CBC      		out 0x2c,__zero_reg__
+ 110:timer_2013.c  **** 	sbi(TIMSK, TOIE1);						// enable TCNT1 overflow
+ 107               		.loc 1 110 0
+ 108 0066 89B7      		in r24,0x39
+ 109 0068 8460      		ori r24,lo8(4)
+ 110 006a 89BF      		out 0x39,r24
+ 111               	.LVL10:
+ 112               	.LBE46:
+ 113               	.LBE45:
+ 114               	.LBB49:
+ 115               	.LBB50:
+ 116               	.LBB51:
+ 117               	.LBB52:
+ 141:timer_2013.c  **** 	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 118               		.loc 1 141 0
+ 119 006c 85B5      		in r24,0x25
+ 120 006e 887F      		andi r24,lo8(-8)
+ 121 0070 8460      		ori r24,lo8(4)
+ 122 0072 85BD      		out 0x25,r24
+ 123               	.LBE52:
+ 124               	.LBE51:
+ 118:timer_2013.c  **** 	outb(TCNT2, 0);							// reset TCNT2
+ 125               		.loc 1 118 0
+ 126 0074 14BC      		out 0x24,__zero_reg__
+ 119:timer_2013.c  **** 	sbi(TIMSK, TOIE2);						// enable TCNT2 overflow
+ 127               		.loc 1 119 0
+ 128 0076 89B7      		in r24,0x39
+ 129 0078 8064      		ori r24,lo8(64)
+ 130 007a 89BF      		out 0x39,r24
+ 131               	.LBB53:
+ 132               	.LBB54:
+ 254:timer_2013.c  **** }
+ 255:timer_2013.c  **** 
+ 256:timer_2013.c  **** long timer0GetOverflowCount(void)
+ 257:timer_2013.c  **** {
+ 258:timer_2013.c  **** 	// return the current timer overflow count
+ 259:timer_2013.c  **** 	// (this is since the last timer0ClearOverflowCount() command was called)
+ 260:timer_2013.c  **** 	return Timer0Reg0;
+ 261:timer_2013.c  **** }
+ 262:timer_2013.c  **** 
+ 263:timer_2013.c  **** #ifdef TCNT2	// support timer2 only if it exists
+ 264:timer_2013.c  **** void timer2ClearOverflowCount(void)
+ 265:timer_2013.c  **** {
+ 266:timer_2013.c  **** 	// clear the timer overflow counter registers
+ 267:timer_2013.c  **** 	Timer2Reg0 = 0;	// initialize time registers
+ 133               		.loc 1 267 0
+ 134 007c 1092 0000 		sts Timer2Reg0,__zero_reg__
+ 135 0080 1092 0000 		sts Timer2Reg0+1,__zero_reg__
+ 136 0084 1092 0000 		sts Timer2Reg0+2,__zero_reg__
+ 137 0088 1092 0000 		sts Timer2Reg0+3,__zero_reg__
+ 138               	.LBE54:
+ 139               	.LBE53:
+ 140               	.LBE50:
+ 141               	.LBE49:
+  91:timer_2013.c  **** 	sei();
+ 142               		.loc 1 91 0
+ 143               	/* #APP */
+ 144               	 ;  91 "timer_2013.c" 1
+ 145 008c 7894      		sei
+ 146               	 ;  0 "" 2
+ 147               	/* #NOAPP */
+ 148 008e 0895      		ret
+ 149               		.cfi_endproc
+ 150               	.LFE2:
+ 152               	.global	timer0Init
+ 154               	timer0Init:
+ 155               	.LFB3:
+  95:timer_2013.c  **** {
+ 156               		.loc 1 95 0
+ 157               		.cfi_startproc
+ 158               	/* prologue: function */
+ 159               	/* frame size = 0 */
+ 160               	/* stack size = 0 */
+ 161               	.L__stack_usage = 0
+ 162               	.LVL11:
+ 163               	.LBB55:
+ 164               	.LBB56:
+ 128:timer_2013.c  **** 	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+ 165               		.loc 1 128 0
+ 166 0090 83B7      		in r24,0x33
+ 167 0092 887F      		andi r24,lo8(-8)
+ 168 0094 8260      		ori r24,lo8(2)
+ 169 0096 83BF      		out 0x33,r24
+ 170               	.LBE56:
+ 171               	.LBE55:
+  98:timer_2013.c  **** 	outb(TCNT0, 0);							// reset TCNT0
+ 172               		.loc 1 98 0
+ 173 0098 12BE      		out 0x32,__zero_reg__
+  99:timer_2013.c  **** 	sbi(TIMSK, TOIE0);						// enable TCNT0 overflow interrupt
+ 174               		.loc 1 99 0
+ 175 009a 89B7      		in r24,0x39
+ 176 009c 8160      		ori r24,lo8(1)
+ 177 009e 89BF      		out 0x39,r24
+ 178               	.LBB57:
+ 179               	.LBB58:
+ 253:timer_2013.c  **** 	Timer0Reg0 = 0;	// initialize time registers
+ 180               		.loc 1 253 0
+ 181 00a0 1092 0000 		sts Timer0Reg0,__zero_reg__
+ 182 00a4 1092 0000 		sts Timer0Reg0+1,__zero_reg__
+ 183 00a8 1092 0000 		sts Timer0Reg0+2,__zero_reg__
+ 184 00ac 1092 0000 		sts Timer0Reg0+3,__zero_reg__
+ 185 00b0 0895      		ret
+ 186               	.LBE58:
+ 187               	.LBE57:
+ 188               		.cfi_endproc
+ 189               	.LFE3:
+ 191               	.global	timer1Init
+ 193               	timer1Init:
+ 194               	.LFB4:
+ 105:timer_2013.c  **** {
+ 195               		.loc 1 105 0
+ 196               		.cfi_startproc
+ 197               	/* prologue: function */
+ 198               	/* frame size = 0 */
+ 199               	/* stack size = 0 */
+ 200               	.L__stack_usage = 0
+ 201               	.LVL12:
+ 202               	.LBB59:
+ 203               	.LBB60:
+ 134:timer_2013.c  **** 	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+ 204               		.loc 1 134 0
+ 205 00b2 8EB5      		in r24,0x2e
+ 206 00b4 887F      		andi r24,lo8(-8)
+ 207 00b6 8360      		ori r24,lo8(3)
+ 208 00b8 8EBD      		out 0x2e,r24
+ 209               	.LBE60:
+ 210               	.LBE59:
+ 108:timer_2013.c  **** 	outb(TCNT1H, 0);						// reset TCNT1
+ 211               		.loc 1 108 0
+ 212 00ba 1DBC      		out 0x2d,__zero_reg__
+ 109:timer_2013.c  **** 	outb(TCNT1L, 0);
+ 213               		.loc 1 109 0
+ 214 00bc 1CBC      		out 0x2c,__zero_reg__
+ 110:timer_2013.c  **** 	sbi(TIMSK, TOIE1);						// enable TCNT1 overflow
+ 215               		.loc 1 110 0
+ 216 00be 89B7      		in r24,0x39
+ 217 00c0 8460      		ori r24,lo8(4)
+ 218 00c2 89BF      		out 0x39,r24
+ 219 00c4 0895      		ret
+ 220               		.cfi_endproc
+ 221               	.LFE4:
+ 223               	.global	timer2Init
+ 225               	timer2Init:
+ 226               	.LFB5:
+ 115:timer_2013.c  **** {
+ 227               		.loc 1 115 0
+ 228               		.cfi_startproc
+ 229               	/* prologue: function */
+ 230               	/* frame size = 0 */
+ 231               	/* stack size = 0 */
+ 232               	.L__stack_usage = 0
+ 233               	.LVL13:
+ 234               	.LBB61:
+ 235               	.LBB62:
+ 141:timer_2013.c  **** 	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 236               		.loc 1 141 0
+ 237 00c6 85B5      		in r24,0x25
+ 238 00c8 887F      		andi r24,lo8(-8)
+ 239 00ca 8460      		ori r24,lo8(4)
+ 240 00cc 85BD      		out 0x25,r24
+ 241               	.LBE62:
+ 242               	.LBE61:
+ 118:timer_2013.c  **** 	outb(TCNT2, 0);							// reset TCNT2
+ 243               		.loc 1 118 0
+ 244 00ce 14BC      		out 0x24,__zero_reg__
+ 119:timer_2013.c  **** 	sbi(TIMSK, TOIE2);						// enable TCNT2 overflow
+ 245               		.loc 1 119 0
+ 246 00d0 89B7      		in r24,0x39
+ 247 00d2 8064      		ori r24,lo8(64)
+ 248 00d4 89BF      		out 0x39,r24
+ 249               	.LBB63:
+ 250               	.LBB64:
+ 251               		.loc 1 267 0
+ 252 00d6 1092 0000 		sts Timer2Reg0,__zero_reg__
+ 253 00da 1092 0000 		sts Timer2Reg0+1,__zero_reg__
+ 254 00de 1092 0000 		sts Timer2Reg0+2,__zero_reg__
+ 255 00e2 1092 0000 		sts Timer2Reg0+3,__zero_reg__
+ 256 00e6 0895      		ret
+ 257               	.LBE64:
+ 258               	.LBE63:
+ 259               		.cfi_endproc
+ 260               	.LFE5:
+ 262               	.global	timer0SetPrescaler
+ 264               	timer0SetPrescaler:
+ 265               	.LFB6:
+ 126:timer_2013.c  **** {
+ 266               		.loc 1 126 0
+ 267               		.cfi_startproc
+ 268               	.LVL14:
+ 269               	/* prologue: function */
+ 270               	/* frame size = 0 */
+ 271               	/* stack size = 0 */
+ 272               	.L__stack_usage = 0
+ 128:timer_2013.c  **** 	outb(TCCR0, (inb(TCCR0) & ~TIMER_PRESCALE_MASK) | prescale);
+ 273               		.loc 1 128 0
+ 274 00e8 93B7      		in r25,0x33
+ 275 00ea 987F      		andi r25,lo8(-8)
+ 276 00ec 982B      		or r25,r24
+ 277 00ee 93BF      		out 0x33,r25
+ 278 00f0 0895      		ret
+ 279               		.cfi_endproc
+ 280               	.LFE6:
+ 282               	.global	timer1SetPrescaler
+ 284               	timer1SetPrescaler:
+ 285               	.LFB7:
+ 132:timer_2013.c  **** {
+ 286               		.loc 1 132 0
+ 287               		.cfi_startproc
+ 288               	.LVL15:
+ 289               	/* prologue: function */
+ 290               	/* frame size = 0 */
+ 291               	/* stack size = 0 */
+ 292               	.L__stack_usage = 0
+ 134:timer_2013.c  **** 	outb(TCCR1B, (inb(TCCR1B) & ~TIMER_PRESCALE_MASK) | prescale);
+ 293               		.loc 1 134 0
+ 294 00f2 9EB5      		in r25,0x2e
+ 295 00f4 987F      		andi r25,lo8(-8)
+ 296 00f6 982B      		or r25,r24
+ 297 00f8 9EBD      		out 0x2e,r25
+ 298 00fa 0895      		ret
+ 299               		.cfi_endproc
+ 300               	.LFE7:
+ 302               	.global	timer2SetPrescaler
+ 304               	timer2SetPrescaler:
+ 305               	.LFB8:
+ 139:timer_2013.c  **** {
+ 306               		.loc 1 139 0
+ 307               		.cfi_startproc
+ 308               	.LVL16:
+ 309               	/* prologue: function */
+ 310               	/* frame size = 0 */
+ 311               	/* stack size = 0 */
+ 312               	.L__stack_usage = 0
+ 141:timer_2013.c  **** 	outb(TCCR2, (inb(TCCR2) & ~TIMER_PRESCALE_MASK) | prescale);
+ 313               		.loc 1 141 0
+ 314 00fc 95B5      		in r25,0x25
+ 315 00fe 987F      		andi r25,lo8(-8)
+ 316 0100 982B      		or r25,r24
+ 317 0102 95BD      		out 0x25,r25
+ 318 0104 0895      		ret
+ 319               		.cfi_endproc
+ 320               	.LFE8:
+ 322               	.global	timer0GetPrescaler
+ 324               	timer0GetPrescaler:
+ 325               	.LFB9:
+ 146:timer_2013.c  **** {
+ 326               		.loc 1 146 0
+ 327               		.cfi_startproc
+ 328               	/* prologue: function */
+ 329               	/* frame size = 0 */
+ 330               	/* stack size = 0 */
+ 331               	.L__stack_usage = 0
+ 332               	.LBB65:
+ 148:timer_2013.c  **** 	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR0) & TIMER_PRESCALE_MASK)));
+ 333               		.loc 1 148 0
+ 334 0106 E3B7      		in r30,0x33
+ 335 0108 E770      		andi r30,lo8(7)
+ 336 010a F0E0      		ldi r31,0
+ 337 010c EE0F      		lsl r30
+ 338 010e FF1F      		rol r31
+ 339 0110 E050      		subi r30,lo8(-(TimerPrescaleFactor))
+ 340 0112 F040      		sbci r31,hi8(-(TimerPrescaleFactor))
+ 341               	.LVL17:
+ 342               	/* #APP */
+ 343               	 ;  148 "timer_2013.c" 1
+ 344 0114 2591      		lpm r18, Z+
+ 345 0116 3491      		lpm r19, Z
+ 346               		
+ 347               	 ;  0 "" 2
+ 348               	.LVL18:
+ 349               	/* #NOAPP */
+ 350               	.LBE65:
+ 149:timer_2013.c  **** }
+ 351               		.loc 1 149 0
+ 352 0118 C901      		movw r24,r18
+ 353 011a 0895      		ret
+ 354               		.cfi_endproc
+ 355               	.LFE9:
+ 357               	.global	timer1GetPrescaler
+ 359               	timer1GetPrescaler:
+ 360               	.LFB10:
+ 152:timer_2013.c  **** {
+ 361               		.loc 1 152 0
+ 362               		.cfi_startproc
+ 363               	/* prologue: function */
+ 364               	/* frame size = 0 */
+ 365               	/* stack size = 0 */
+ 366               	.L__stack_usage = 0
+ 367               	.LBB66:
+ 154:timer_2013.c  **** 	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR1B) & TIMER_PRESCALE_MASK)));
+ 368               		.loc 1 154 0
+ 369 011c EEB5      		in r30,0x2e
+ 370 011e E770      		andi r30,lo8(7)
+ 371 0120 F0E0      		ldi r31,0
+ 372 0122 EE0F      		lsl r30
+ 373 0124 FF1F      		rol r31
+ 374 0126 E050      		subi r30,lo8(-(TimerPrescaleFactor))
+ 375 0128 F040      		sbci r31,hi8(-(TimerPrescaleFactor))
+ 376               	.LVL19:
+ 377               	/* #APP */
+ 378               	 ;  154 "timer_2013.c" 1
+ 379 012a 2591      		lpm r18, Z+
+ 380 012c 3491      		lpm r19, Z
+ 381               		
+ 382               	 ;  0 "" 2
+ 383               	.LVL20:
+ 384               	/* #NOAPP */
+ 385               	.LBE66:
+ 155:timer_2013.c  **** }
+ 386               		.loc 1 155 0
+ 387 012e C901      		movw r24,r18
+ 388 0130 0895      		ret
+ 389               		.cfi_endproc
+ 390               	.LFE10:
+ 392               	.global	timer2GetPrescaler
+ 394               	timer2GetPrescaler:
+ 395               	.LFB11:
+ 159:timer_2013.c  **** {
+ 396               		.loc 1 159 0
+ 397               		.cfi_startproc
+ 398               	/* prologue: function */
+ 399               	/* frame size = 0 */
+ 400               	/* stack size = 0 */
+ 401               	.L__stack_usage = 0
+ 402               	.LBB67:
+ 164:timer_2013.c  **** 	return (pgm_read_word(TimerRTCPrescaleFactor+(inb(TCCR2) & TIMER_PRESCALE_MASK)));
+ 403               		.loc 1 164 0
+ 404 0132 E5B5      		in r30,0x25
+ 405 0134 E770      		andi r30,lo8(7)
+ 406 0136 F0E0      		ldi r31,0
+ 407 0138 EE0F      		lsl r30
+ 408 013a FF1F      		rol r31
+ 409 013c E050      		subi r30,lo8(-(TimerRTCPrescaleFactor))
+ 410 013e F040      		sbci r31,hi8(-(TimerRTCPrescaleFactor))
+ 411               	.LVL21:
+ 412               	/* #APP */
+ 413               	 ;  164 "timer_2013.c" 1
+ 414 0140 2591      		lpm r18, Z+
+ 415 0142 3491      		lpm r19, Z
+ 416               		
+ 417               	 ;  0 "" 2
+ 418               	.LVL22:
+ 419               	/* #NOAPP */
+ 420               	.LBE67:
+ 165:timer_2013.c  **** }
+ 421               		.loc 1 165 0
+ 422 0144 C901      		movw r24,r18
+ 423 0146 0895      		ret
+ 424               		.cfi_endproc
+ 425               	.LFE11:
+ 427               	.global	timerAttach
+ 429               	timerAttach:
+ 430               	.LFB12:
+ 169:timer_2013.c  **** {
+ 431               		.loc 1 169 0
+ 432               		.cfi_startproc
+ 433               	.LVL23:
+ 434               	/* prologue: function */
+ 435               	/* frame size = 0 */
+ 436               	/* stack size = 0 */
+ 437               	.L__stack_usage = 0
+ 171:timer_2013.c  **** 	if(interruptNum < TIMER_NUM_INTERRUPTS)
+ 438               		.loc 1 171 0
+ 439 0148 8730      		cpi r24,lo8(7)
+ 440 014a 00F4      		brsh .L12
+ 175:timer_2013.c  **** 		TimerIntFunc[interruptNum] = userFunc;
+ 441               		.loc 1 175 0
+ 442 014c E82F      		mov r30,r24
+ 443 014e F0E0      		ldi r31,0
+ 444 0150 EE0F      		lsl r30
+ 445 0152 FF1F      		rol r31
+ 446 0154 E050      		subi r30,lo8(-(TimerIntFunc))
+ 447 0156 F040      		sbci r31,hi8(-(TimerIntFunc))
+ 448 0158 7183      		std Z+1,r23
+ 449 015a 6083      		st Z,r22
+ 450               	.L12:
+ 451 015c 0895      		ret
+ 452               		.cfi_endproc
+ 453               	.LFE12:
+ 455               	.global	timerDetach
+ 457               	timerDetach:
+ 458               	.LFB13:
+ 180:timer_2013.c  **** {
+ 459               		.loc 1 180 0
+ 460               		.cfi_startproc
+ 461               	.LVL24:
+ 462               	/* prologue: function */
+ 463               	/* frame size = 0 */
+ 464               	/* stack size = 0 */
+ 465               	.L__stack_usage = 0
+ 182:timer_2013.c  **** 	if(interruptNum < TIMER_NUM_INTERRUPTS)
+ 466               		.loc 1 182 0
+ 467 015e 8730      		cpi r24,lo8(7)
+ 468 0160 00F4      		brsh .L15
+ 185:timer_2013.c  **** 		TimerIntFunc[interruptNum] = 0;
+ 469               		.loc 1 185 0
+ 470 0162 E82F      		mov r30,r24
+ 471 0164 F0E0      		ldi r31,0
+ 472 0166 EE0F      		lsl r30
+ 473 0168 FF1F      		rol r31
+ 474 016a E050      		subi r30,lo8(-(TimerIntFunc))
+ 475 016c F040      		sbci r31,hi8(-(TimerIntFunc))
+ 476 016e 1182      		std Z+1,__zero_reg__
+ 477 0170 1082      		st Z,__zero_reg__
+ 478               	.L15:
+ 479 0172 0895      		ret
+ 480               		.cfi_endproc
+ 481               	.LFE13:
+ 483               	.global	timerPause
+ 485               	timerPause:
+ 486               	.LFB14:
+ 206:timer_2013.c  **** {
+ 487               		.loc 1 206 0
+ 488               		.cfi_startproc
+ 489               	.LVL25:
+ 490 0174 CF92      		push r12
+ 491               	.LCFI0:
+ 492               		.cfi_def_cfa_offset 3
+ 493               		.cfi_offset 12, -2
+ 494 0176 DF92      		push r13
+ 495               	.LCFI1:
+ 496               		.cfi_def_cfa_offset 4
+ 497               		.cfi_offset 13, -3
+ 498 0178 EF92      		push r14
+ 499               	.LCFI2:
+ 500               		.cfi_def_cfa_offset 5
+ 501               		.cfi_offset 14, -4
+ 502 017a FF92      		push r15
+ 503               	.LCFI3:
+ 504               		.cfi_def_cfa_offset 6
+ 505               		.cfi_offset 15, -5
+ 506 017c 0F93      		push r16
+ 507               	.LCFI4:
+ 508               		.cfi_def_cfa_offset 7
+ 509               		.cfi_offset 16, -6
+ 510 017e 1F93      		push r17
+ 511               	.LCFI5:
+ 512               		.cfi_def_cfa_offset 8
+ 513               		.cfi_offset 17, -7
+ 514 0180 CF93      		push r28
+ 515               	.LCFI6:
+ 516               		.cfi_def_cfa_offset 9
+ 517               		.cfi_offset 28, -8
+ 518 0182 DF93      		push r29
+ 519               	.LCFI7:
+ 520               		.cfi_def_cfa_offset 10
+ 521               		.cfi_offset 29, -9
+ 522               	/* prologue: function */
+ 523               	/* frame size = 0 */
+ 524               	/* stack size = 8 */
+ 525               	.L__stack_usage = 8
+ 526 0184 EC01      		movw r28,r24
+ 213:timer_2013.c  **** 	timerThres = inb(TCNT0);
+ 527               		.loc 1 213 0
+ 528 0186 12B7      		in r17,0x32
+ 529               	.LVL26:
+ 215:timer_2013.c  **** 	TimerPauseReg = 0;
+ 530               		.loc 1 215 0
+ 531 0188 1092 0000 		sts TimerPauseReg,__zero_reg__
+ 532 018c 1092 0000 		sts TimerPauseReg+1,__zero_reg__
+ 533 0190 1092 0000 		sts TimerPauseReg+2,__zero_reg__
+ 534 0194 1092 0000 		sts TimerPauseReg+3,__zero_reg__
+ 535               	.LBB68:
+ 536               	.LBB69:
+ 148:timer_2013.c  **** 	return (pgm_read_word(TimerPrescaleFactor+(inb(TCCR0) & TIMER_PRESCALE_MASK)));
+ 537               		.loc 1 148 0
+ 538 0198 E3B7      		in r30,0x33
+ 539               	.LBE69:
+ 540 019a E770      		andi r30,lo8(7)
+ 541               	.LBB70:
+ 542 019c F0E0      		ldi r31,0
+ 543 019e EE0F      		lsl r30
+ 544 01a0 FF1F      		rol r31
+ 545 01a2 E050      		subi r30,lo8(-(TimerPrescaleFactor))
+ 546 01a4 F040      		sbci r31,hi8(-(TimerPrescaleFactor))
+ 547               	.LVL27:
+ 548               	/* #APP */
+ 549               	 ;  148 "timer_2013.c" 1
+ 550 01a6 2591      		lpm r18, Z+
+ 551 01a8 3491      		lpm r19, Z
+ 552               		
+ 553               	 ;  0 "" 2
+ 554               	.LVL28:
+ 555               	/* #NOAPP */
+ 556               	.LBE70:
+ 557               	.LBE68:
+ 218:timer_2013.c  **** 	ticRateHz = F_CPU/timer0GetPrescaler();
+ 558               		.loc 1 218 0
+ 559 01aa 40E0      		ldi r20,0
+ 560 01ac 50E0      		ldi r21,0
+ 561 01ae 60E0      		ldi r22,0
+ 562 01b0 72E1      		ldi r23,lo8(18)
+ 563 01b2 8AE7      		ldi r24,lo8(122)
+ 564 01b4 90E0      		ldi r25,0
+ 565 01b6 00D0      		rcall __divmodsi4
+ 566               	.LVL29:
+ 222:timer_2013.c  **** 	if( ((ticRateHz < 429497) && (pause_ms <= 10000)) )
+ 567               		.loc 1 222 0
+ 568 01b8 293B      		cpi r18,-71
+ 569 01ba 8DE8      		ldi r24,-115
+ 570 01bc 3807      		cpc r19,r24
+ 571 01be 86E0      		ldi r24,6
+ 572 01c0 4807      		cpc r20,r24
+ 573 01c2 5105      		cpc r21,__zero_reg__
+ 574               	.LVL30:
+ 575 01c4 00F4      		brsh .L18
+ 222:timer_2013.c  **** 	if( ((ticRateHz < 429497) && (pause_ms <= 10000)) )
+ 576               		.loc 1 222 0 is_stmt 0 discriminator 1
+ 577 01c6 C131      		cpi r28,17
+ 578 01c8 87E2      		ldi r24,39
+ 579 01ca D807      		cpc r29,r24
+ 580 01cc 00F4      		brsh .+2
+ 581 01ce 00C0      		rjmp .L24
+ 582               	.L18:
+ 225:timer_2013.c  **** 		pause = pause_ms*(ticRateHz/1000);
+ 583               		.loc 1 225 0 is_stmt 1
+ 584 01d0 CA01      		movw r24,r20
+ 585 01d2 B901      		movw r22,r18
+ 586 01d4 28EE      		ldi r18,lo8(-24)
+ 587 01d6 33E0      		ldi r19,lo8(3)
+ 588 01d8 40E0      		ldi r20,0
+ 589 01da 50E0      		ldi r21,0
+ 590               	.LVL31:
+ 591 01dc 00D0      		rcall __udivmodsi4
+ 592               	.LVL32:
+ 593 01de DE01      		movw r26,r28
+ 594 01e0 00D0      		rcall __muluhisi3
+ 595 01e2 9B01      		movw r18,r22
+ 596 01e4 AC01      		movw r20,r24
+ 597               	.LVL33:
+ 598               	.L20:
+ 228:timer_2013.c  **** 	while( ((TimerPauseReg<<8) | inb(TCNT0)) < (pause+timerThres) )
+ 599               		.loc 1 228 0 discriminator 1
+ 600 01e6 8091 0000 		lds r24,TimerPauseReg
+ 601 01ea 9091 0000 		lds r25,TimerPauseReg+1
+ 602 01ee A091 0000 		lds r26,TimerPauseReg+2
+ 603 01f2 B091 0000 		lds r27,TimerPauseReg+3
+ 604 01f6 62B7      		in r22,0x32
+ 605 01f8 6901      		movw r12,r18
+ 606 01fa 7A01      		movw r14,r20
+ 607 01fc C10E      		add r12,r17
+ 608 01fe D11C      		adc r13,__zero_reg__
+ 609 0200 E11C      		adc r14,__zero_reg__
+ 610 0202 F11C      		adc r15,__zero_reg__
+ 611 0204 9701      		movw r18,r14
+ 612 0206 8601      		movw r16,r12
+ 613 0208 BA2F      		mov r27,r26
+ 614 020a A92F      		mov r26,r25
+ 615 020c 982F      		mov r25,r24
+ 616 020e 8827      		clr r24
+ 617 0210 862B      		or r24,r22
+ 618 0212 8C15      		cp r24,r12
+ 619 0214 9D05      		cpc r25,r13
+ 620 0216 AE05      		cpc r26,r14
+ 621 0218 BF05      		cpc r27,r15
+ 622 021a 00F4      		brsh .L17
+ 623               	.LVL34:
+ 624               	.L22:
+ 230:timer_2013.c  **** 		if( TimerPauseReg < (pause>>8));
+ 625               		.loc 1 230 0
+ 626 021c 8091 0000 		lds r24,TimerPauseReg
+ 627 0220 9091 0000 		lds r25,TimerPauseReg+1
+ 628 0224 A091 0000 		lds r26,TimerPauseReg+2
+ 629 0228 B091 0000 		lds r27,TimerPauseReg+3
+ 233:timer_2013.c  **** 			set_sleep_mode(SLEEP_MODE_IDLE);
+ 630               		.loc 1 233 0
+ 631 022c 85B7      		in r24,0x35
+ 632 022e 8F78      		andi r24,lo8(-113)
+ 633 0230 85BF      		out 0x35,r24
+ 234:timer_2013.c  **** 			sleep_mode();
+ 634               		.loc 1 234 0
+ 635 0232 85B7      		in r24,0x35
+ 636 0234 8068      		ori r24,lo8(-128)
+ 637 0236 85BF      		out 0x35,r24
+ 638               	/* #APP */
+ 639               	 ;  234 "timer_2013.c" 1
+ 640 0238 8895      		sleep
+ 641               		
+ 642               	 ;  0 "" 2
+ 643               	/* #NOAPP */
+ 644 023a 85B7      		in r24,0x35
+ 645 023c 8F77      		andi r24,lo8(127)
+ 646 023e 85BF      		out 0x35,r24
+ 228:timer_2013.c  **** 	while( ((TimerPauseReg<<8) | inb(TCNT0)) < (pause+timerThres) )
+ 647               		.loc 1 228 0
+ 648 0240 8091 0000 		lds r24,TimerPauseReg
+ 649 0244 9091 0000 		lds r25,TimerPauseReg+1
+ 650 0248 A091 0000 		lds r26,TimerPauseReg+2
+ 651 024c B091 0000 		lds r27,TimerPauseReg+3
+ 652 0250 62B7      		in r22,0x32
+ 653 0252 BA2F      		mov r27,r26
+ 654 0254 A92F      		mov r26,r25
+ 655 0256 982F      		mov r25,r24
+ 656 0258 8827      		clr r24
+ 657 025a 862B      		or r24,r22
+ 658 025c 8017      		cp r24,r16
+ 659 025e 9107      		cpc r25,r17
+ 660 0260 A207      		cpc r26,r18
+ 661 0262 B307      		cpc r27,r19
+ 662 0264 00F0      		brlo .L22
+ 663               	.L17:
+ 664               	/* epilogue start */
+ 248:timer_2013.c  **** }
+ 665               		.loc 1 248 0
+ 666 0266 DF91      		pop r29
+ 667 0268 CF91      		pop r28
+ 668               	.LVL35:
+ 669 026a 1F91      		pop r17
+ 670               	.LVL36:
+ 671 026c 0F91      		pop r16
+ 672 026e FF90      		pop r15
+ 673 0270 EF90      		pop r14
+ 674 0272 DF90      		pop r13
+ 675 0274 CF90      		pop r12
+ 676 0276 0895      		ret
+ 677               	.LVL37:
+ 678               	.L24:
+ 223:timer_2013.c  **** 		pause = (pause_ms*ticRateHz)/1000;
+ 679               		.loc 1 223 0
+ 680 0278 DE01      		movw r26,r28
+ 681 027a 00D0      		rcall __muluhisi3
+ 682 027c 28EE      		ldi r18,lo8(-24)
+ 683 027e 33E0      		ldi r19,lo8(3)
+ 684 0280 40E0      		ldi r20,0
+ 685 0282 50E0      		ldi r21,0
+ 686               	.LVL38:
+ 687 0284 00D0      		rcall __udivmodsi4
+ 688               	.LVL39:
+ 689 0286 00C0      		rjmp .L20
+ 690               		.cfi_endproc
+ 691               	.LFE14:
+ 693               	.global	timer0ClearOverflowCount
+ 695               	timer0ClearOverflowCount:
+ 696               	.LFB15:
+ 251:timer_2013.c  **** {
+ 697               		.loc 1 251 0
+ 698               		.cfi_startproc
+ 699               	/* prologue: function */
+ 700               	/* frame size = 0 */
+ 701               	/* stack size = 0 */
+ 702               	.L__stack_usage = 0
+ 253:timer_2013.c  **** 	Timer0Reg0 = 0;	// initialize time registers
+ 703               		.loc 1 253 0
+ 704 0288 1092 0000 		sts Timer0Reg0,__zero_reg__
+ 705 028c 1092 0000 		sts Timer0Reg0+1,__zero_reg__
+ 706 0290 1092 0000 		sts Timer0Reg0+2,__zero_reg__
+ 707 0294 1092 0000 		sts Timer0Reg0+3,__zero_reg__
+ 708 0298 0895      		ret
+ 709               		.cfi_endproc
+ 710               	.LFE15:
+ 712               	.global	timer0GetOverflowCount
+ 714               	timer0GetOverflowCount:
+ 715               	.LFB16:
+ 257:timer_2013.c  **** {
+ 716               		.loc 1 257 0
+ 717               		.cfi_startproc
+ 718 029a 0F93      		push r16
+ 719               	.LCFI8:
+ 720               		.cfi_def_cfa_offset 3
+ 721               		.cfi_offset 16, -2
+ 722 029c 1F93      		push r17
+ 723               	.LCFI9:
+ 724               		.cfi_def_cfa_offset 4
+ 725               		.cfi_offset 17, -3
+ 726               	/* prologue: function */
+ 727               	/* frame size = 0 */
+ 728               	/* stack size = 2 */
+ 729               	.L__stack_usage = 2
+ 260:timer_2013.c  **** 	return Timer0Reg0;
+ 730               		.loc 1 260 0
+ 731 029e 0091 0000 		lds r16,Timer0Reg0
+ 732 02a2 1091 0000 		lds r17,Timer0Reg0+1
+ 733 02a6 2091 0000 		lds r18,Timer0Reg0+2
+ 734 02aa 3091 0000 		lds r19,Timer0Reg0+3
+ 261:timer_2013.c  **** }
+ 735               		.loc 1 261 0
+ 736 02ae B801      		movw r22,r16
+ 737 02b0 C901      		movw r24,r18
+ 738               	/* epilogue start */
+ 739 02b2 1F91      		pop r17
+ 740 02b4 0F91      		pop r16
+ 741 02b6 0895      		ret
+ 742               		.cfi_endproc
+ 743               	.LFE16:
+ 745               	.global	timer2ClearOverflowCount
+ 747               	timer2ClearOverflowCount:
+ 748               	.LFB17:
+ 265:timer_2013.c  **** {
+ 749               		.loc 1 265 0
+ 750               		.cfi_startproc
+ 751               	/* prologue: function */
+ 752               	/* frame size = 0 */
+ 753               	/* stack size = 0 */
+ 754               	.L__stack_usage = 0
+ 755               		.loc 1 267 0
+ 756 02b8 1092 0000 		sts Timer2Reg0,__zero_reg__
+ 757 02bc 1092 0000 		sts Timer2Reg0+1,__zero_reg__
+ 758 02c0 1092 0000 		sts Timer2Reg0+2,__zero_reg__
+ 759 02c4 1092 0000 		sts Timer2Reg0+3,__zero_reg__
+ 760 02c8 0895      		ret
+ 761               		.cfi_endproc
+ 762               	.LFE17:
+ 764               	.global	timer2GetOverflowCount
+ 766               	timer2GetOverflowCount:
+ 767               	.LFB18:
+ 268:timer_2013.c  **** }
+ 269:timer_2013.c  **** 
+ 270:timer_2013.c  **** long timer2GetOverflowCount(void)
+ 271:timer_2013.c  **** {
+ 768               		.loc 1 271 0
+ 769               		.cfi_startproc
+ 770 02ca 0F93      		push r16
+ 771               	.LCFI10:
+ 772               		.cfi_def_cfa_offset 3
+ 773               		.cfi_offset 16, -2
+ 774 02cc 1F93      		push r17
+ 775               	.LCFI11:
+ 776               		.cfi_def_cfa_offset 4
+ 777               		.cfi_offset 17, -3
+ 778               	/* prologue: function */
+ 779               	/* frame size = 0 */
+ 780               	/* stack size = 2 */
+ 781               	.L__stack_usage = 2
+ 272:timer_2013.c  **** 	// return the current timer overflow count
+ 273:timer_2013.c  **** 	// (this is since the last timer2ClearOverflowCount() command was called)
+ 274:timer_2013.c  **** 	return Timer2Reg0;
+ 782               		.loc 1 274 0
+ 783 02ce 0091 0000 		lds r16,Timer2Reg0
+ 784 02d2 1091 0000 		lds r17,Timer2Reg0+1
+ 785 02d6 2091 0000 		lds r18,Timer2Reg0+2
+ 786 02da 3091 0000 		lds r19,Timer2Reg0+3
+ 275:timer_2013.c  **** }
+ 787               		.loc 1 275 0
+ 788 02de B801      		movw r22,r16
+ 789 02e0 C901      		movw r24,r18
+ 790               	/* epilogue start */
+ 791 02e2 1F91      		pop r17
+ 792 02e4 0F91      		pop r16
+ 793 02e6 0895      		ret
+ 794               		.cfi_endproc
+ 795               	.LFE18:
+ 797               	.global	timer1PWMInit
+ 799               	timer1PWMInit:
+ 800               	.LFB19:
+ 276:timer_2013.c  **** #endif
+ 277:timer_2013.c  **** 
+ 278:timer_2013.c  **** void timer1PWMInit(u08 bitRes)
+ 279:timer_2013.c  **** {
+ 801               		.loc 1 279 0
+ 802               		.cfi_startproc
+ 803               	.LVL40:
+ 804               	/* prologue: function */
+ 805               	/* frame size = 0 */
+ 806               	/* stack size = 0 */
+ 807               	.L__stack_usage = 0
+ 280:timer_2013.c  **** 	// configures timer1 for use with PWM output
+ 281:timer_2013.c  **** 	// on OC1A and OC1B pins
+ 282:timer_2013.c  **** 
+ 283:timer_2013.c  **** 	// enable timer1 as 8,9,10bit PWM
+ 284:timer_2013.c  **** 	if(bitRes == 9)
+ 808               		.loc 1 284 0
+ 809 02e8 8930      		cpi r24,lo8(9)
+ 810 02ea 01F0      		breq .L33
+ 285:timer_2013.c  **** 	{	// 9bit mode
+ 286:timer_2013.c  **** 		sbi(TCCR1A,PWM11);
+ 287:timer_2013.c  **** 		cbi(TCCR1A,PWM10);
+ 288:timer_2013.c  **** 	}
+ 289:timer_2013.c  **** 	else if( bitRes == 10 )
+ 811               		.loc 1 289 0
+ 812 02ec 8A30      		cpi r24,lo8(10)
+ 813 02ee 01F0      		breq .L34
+ 290:timer_2013.c  **** 	{	// 10bit mode
+ 291:timer_2013.c  **** 		sbi(TCCR1A,PWM11);
+ 292:timer_2013.c  **** 		sbi(TCCR1A,PWM10);
+ 293:timer_2013.c  **** 	}
+ 294:timer_2013.c  **** 	else
+ 295:timer_2013.c  **** 	{	// default 8bit mode
+ 296:timer_2013.c  **** 		cbi(TCCR1A,PWM11);
+ 814               		.loc 1 296 0
+ 815 02f0 8FB5      		in r24,0x2f
+ 816               	.LVL41:
+ 817 02f2 8D7F      		andi r24,lo8(-3)
+ 818 02f4 8FBD      		out 0x2f,r24
+ 297:timer_2013.c  **** 		sbi(TCCR1A,PWM10);
+ 819               		.loc 1 297 0
+ 820 02f6 8FB5      		in r24,0x2f
+ 821 02f8 8160      		ori r24,lo8(1)
+ 822 02fa 8FBD      		out 0x2f,r24
+ 298:timer_2013.c  **** 	}
+ 299:timer_2013.c  **** 
+ 300:timer_2013.c  **** 	// clear output compare value A
+ 301:timer_2013.c  **** 	outb(OCR1AH, 0);
+ 823               		.loc 1 301 0
+ 824 02fc 1BBC      		out 0x2b,__zero_reg__
+ 302:timer_2013.c  **** 	outb(OCR1AL, 0);
+ 825               		.loc 1 302 0
+ 826 02fe 1ABC      		out 0x2a,__zero_reg__
+ 303:timer_2013.c  **** 	// clear output compare value B
+ 304:timer_2013.c  **** 	outb(OCR1BH, 0);
+ 827               		.loc 1 304 0
+ 828 0300 19BC      		out 0x29,__zero_reg__
+ 305:timer_2013.c  **** 	outb(OCR1BL, 0);
+ 829               		.loc 1 305 0
+ 830 0302 18BC      		out 0x28,__zero_reg__
+ 831 0304 0895      		ret
+ 832               	.LVL42:
+ 833               	.L33:
+ 286:timer_2013.c  **** 		sbi(TCCR1A,PWM11);
+ 834               		.loc 1 286 0
+ 835 0306 8FB5      		in r24,0x2f
+ 836               	.LVL43:
+ 837 0308 8260      		ori r24,lo8(2)
+ 838 030a 8FBD      		out 0x2f,r24
+ 287:timer_2013.c  **** 		cbi(TCCR1A,PWM10);
+ 839               		.loc 1 287 0
+ 840 030c 8FB5      		in r24,0x2f
+ 841 030e 8E7F      		andi r24,lo8(-2)
+ 842 0310 8FBD      		out 0x2f,r24
+ 301:timer_2013.c  **** 	outb(OCR1AH, 0);
+ 843               		.loc 1 301 0
+ 844 0312 1BBC      		out 0x2b,__zero_reg__
+ 302:timer_2013.c  **** 	outb(OCR1AL, 0);
+ 845               		.loc 1 302 0
+ 846 0314 1ABC      		out 0x2a,__zero_reg__
+ 304:timer_2013.c  **** 	outb(OCR1BH, 0);
+ 847               		.loc 1 304 0
+ 848 0316 19BC      		out 0x29,__zero_reg__
+ 849               		.loc 1 305 0
+ 850 0318 18BC      		out 0x28,__zero_reg__
+ 851 031a 0895      		ret
+ 852               	.LVL44:
+ 853               	.L34:
+ 291:timer_2013.c  **** 		sbi(TCCR1A,PWM11);
+ 854               		.loc 1 291 0
+ 855 031c 8FB5      		in r24,0x2f
+ 856               	.LVL45:
+ 857 031e 8260      		ori r24,lo8(2)
+ 858 0320 8FBD      		out 0x2f,r24
+ 292:timer_2013.c  **** 		sbi(TCCR1A,PWM10);
+ 859               		.loc 1 292 0
+ 860 0322 8FB5      		in r24,0x2f
+ 861 0324 8160      		ori r24,lo8(1)
+ 862 0326 8FBD      		out 0x2f,r24
+ 301:timer_2013.c  **** 	outb(OCR1AH, 0);
+ 863               		.loc 1 301 0
+ 864 0328 1BBC      		out 0x2b,__zero_reg__
+ 302:timer_2013.c  **** 	outb(OCR1AL, 0);
+ 865               		.loc 1 302 0
+ 866 032a 1ABC      		out 0x2a,__zero_reg__
+ 304:timer_2013.c  **** 	outb(OCR1BH, 0);
+ 867               		.loc 1 304 0
+ 868 032c 19BC      		out 0x29,__zero_reg__
+ 869               		.loc 1 305 0
+ 870 032e 18BC      		out 0x28,__zero_reg__
+ 871 0330 0895      		ret
+ 872               		.cfi_endproc
+ 873               	.LFE19:
+ 875               	.global	timer1PWMInitICR
+ 877               	timer1PWMInitICR:
+ 878               	.LFB20:
+ 306:timer_2013.c  **** }
+ 307:timer_2013.c  **** 
+ 308:timer_2013.c  **** #ifdef WGM10
+ 309:timer_2013.c  **** // include support for arbitrary top-count PWM
+ 310:timer_2013.c  **** // on new AVR processors that support it
+ 311:timer_2013.c  **** void timer1PWMInitICR(u16 topcount)
+ 312:timer_2013.c  **** {
+ 879               		.loc 1 312 0
+ 880               		.cfi_startproc
+ 881               	.LVL46:
+ 882               	/* prologue: function */
+ 883               	/* frame size = 0 */
+ 884               	/* stack size = 0 */
+ 885               	.L__stack_usage = 0
+ 313:timer_2013.c  **** 	// set PWM mode with ICR top-count
+ 314:timer_2013.c  **** 	cbi(TCCR1A,WGM10);
+ 886               		.loc 1 314 0
+ 887 0332 2FB5      		in r18,0x2f
+ 888 0334 2E7F      		andi r18,lo8(-2)
+ 889 0336 2FBD      		out 0x2f,r18
+ 315:timer_2013.c  **** 	sbi(TCCR1A,WGM11);
+ 890               		.loc 1 315 0
+ 891 0338 2FB5      		in r18,0x2f
+ 892 033a 2260      		ori r18,lo8(2)
+ 893 033c 2FBD      		out 0x2f,r18
+ 316:timer_2013.c  **** 	sbi(TCCR1B,WGM12);
+ 894               		.loc 1 316 0
+ 895 033e 2EB5      		in r18,0x2e
+ 896 0340 2860      		ori r18,lo8(8)
+ 897 0342 2EBD      		out 0x2e,r18
+ 317:timer_2013.c  **** 	sbi(TCCR1B,WGM13);
+ 898               		.loc 1 317 0
+ 899 0344 2EB5      		in r18,0x2e
+ 900 0346 2061      		ori r18,lo8(16)
+ 901 0348 2EBD      		out 0x2e,r18
+ 318:timer_2013.c  **** 	
+ 319:timer_2013.c  **** 	// set top count value
+ 320:timer_2013.c  **** 	ICR1 = topcount;
+ 902               		.loc 1 320 0
+ 903 034a 97BD      		out 0x26+1,r25
+ 904 034c 86BD      		out 0x26,r24
+ 321:timer_2013.c  **** 	
+ 322:timer_2013.c  **** 	// clear output compare value A
+ 323:timer_2013.c  **** 	OCR1A = 0;
+ 905               		.loc 1 323 0
+ 906 034e 1BBC      		out 0x2a+1,__zero_reg__
+ 907 0350 1ABC      		out 0x2a,__zero_reg__
+ 324:timer_2013.c  **** 	// clear output compare value B
+ 325:timer_2013.c  **** 	OCR1B = 0;
+ 908               		.loc 1 325 0
+ 909 0352 19BC      		out 0x28+1,__zero_reg__
+ 910 0354 18BC      		out 0x28,__zero_reg__
+ 911 0356 0895      		ret
+ 912               		.cfi_endproc
+ 913               	.LFE20:
+ 915               	.global	timer1PWMOff
+ 917               	timer1PWMOff:
+ 918               	.LFB21:
+ 326:timer_2013.c  **** 
+ 327:timer_2013.c  **** }
+ 328:timer_2013.c  **** #endif
+ 329:timer_2013.c  **** 
+ 330:timer_2013.c  **** void timer1PWMOff(void)
+ 331:timer_2013.c  **** {
+ 919               		.loc 1 331 0
+ 920               		.cfi_startproc
+ 921               	/* prologue: function */
+ 922               	/* frame size = 0 */
+ 923               	/* stack size = 0 */
+ 924               	.L__stack_usage = 0
+ 332:timer_2013.c  **** 	// turn off timer1 PWM mode
+ 333:timer_2013.c  **** 	cbi(TCCR1A,PWM11);
+ 925               		.loc 1 333 0
+ 926 0358 8FB5      		in r24,0x2f
+ 927 035a 8D7F      		andi r24,lo8(-3)
+ 928 035c 8FBD      		out 0x2f,r24
+ 334:timer_2013.c  **** 	cbi(TCCR1A,PWM10);
+ 929               		.loc 1 334 0
+ 930 035e 8FB5      		in r24,0x2f
+ 931 0360 8E7F      		andi r24,lo8(-2)
+ 932 0362 8FBD      		out 0x2f,r24
+ 933               	.LBB71:
+ 934               	.LBB72:
+ 335:timer_2013.c  **** 	// set PWM1A/B (OutputCompare action) to none
+ 336:timer_2013.c  **** 	timer1PWMAOff();
+ 337:timer_2013.c  **** 	timer1PWMBOff();
+ 338:timer_2013.c  **** }
+ 339:timer_2013.c  **** 
+ 340:timer_2013.c  **** void timer1PWMAOn(void)
+ 341:timer_2013.c  **** {
+ 342:timer_2013.c  **** 	// turn on channel A (OC1A) PWM output
+ 343:timer_2013.c  **** 	// set OC1A as non-inverted PWM
+ 344:timer_2013.c  **** 	sbi(TCCR1A,COM1A1);
+ 345:timer_2013.c  **** 	cbi(TCCR1A,COM1A0);
+ 346:timer_2013.c  **** }
+ 347:timer_2013.c  **** 
+ 348:timer_2013.c  **** void timer1PWMAOnInv(void)
+ 349:timer_2013.c  **** {
+ 350:timer_2013.c  **** 	// turn on channel A (OC1A) PWM output
+ 351:timer_2013.c  **** 	// set OC1A as non-inverted PWM
+ 352:timer_2013.c  **** 	sbi(TCCR1A,COM1A1);
+ 353:timer_2013.c  **** 	cbi(TCCR1A,COM1A0);
+ 354:timer_2013.c  **** }
+ 355:timer_2013.c  **** 
+ 356:timer_2013.c  **** void timer1PWMBOn(void)
+ 357:timer_2013.c  **** {
+ 358:timer_2013.c  **** 	// turn on channel B (OC1B) PWM output
+ 359:timer_2013.c  **** 	// set OC1B as non-inverted PWM
+ 360:timer_2013.c  **** 	sbi(TCCR1A,COM1B1);
+ 361:timer_2013.c  **** 	cbi(TCCR1A,COM1B0);
+ 362:timer_2013.c  **** }
+ 363:timer_2013.c  **** 
+ 364:timer_2013.c  **** void timer1PWMAOff(void)
+ 365:timer_2013.c  **** {
+ 366:timer_2013.c  **** 	// turn off channel A (OC1A) PWM output
+ 367:timer_2013.c  **** 	// set OC1A (OutputCompare action) to none
+ 368:timer_2013.c  **** 	cbi(TCCR1A,COM1A1);
+ 935               		.loc 1 368 0
+ 936 0364 8FB5      		in r24,0x2f
+ 937 0366 8F77      		andi r24,lo8(127)
+ 938 0368 8FBD      		out 0x2f,r24
+ 369:timer_2013.c  **** 	cbi(TCCR1A,COM1A0);
+ 939               		.loc 1 369 0
+ 940 036a 8FB5      		in r24,0x2f
+ 941 036c 8F7B      		andi r24,lo8(-65)
+ 942 036e 8FBD      		out 0x2f,r24
+ 943               	.LBE72:
+ 944               	.LBE71:
+ 945               	.LBB73:
+ 946               	.LBB74:
+ 370:timer_2013.c  **** }
+ 371:timer_2013.c  **** 
+ 372:timer_2013.c  **** void timer1PWMBOff(void)
+ 373:timer_2013.c  **** {
+ 374:timer_2013.c  **** 	// turn off channel B (OC1B) PWM output
+ 375:timer_2013.c  **** 	// set OC1B (OutputCompare action) to none
+ 376:timer_2013.c  **** 	cbi(TCCR1A,COM1B1);
+ 947               		.loc 1 376 0
+ 948 0370 8FB5      		in r24,0x2f
+ 949 0372 8F7D      		andi r24,lo8(-33)
+ 950 0374 8FBD      		out 0x2f,r24
+ 377:timer_2013.c  **** 	cbi(TCCR1A,COM1B0);
+ 951               		.loc 1 377 0
+ 952 0376 8FB5      		in r24,0x2f
+ 953 0378 8F7E      		andi r24,lo8(-17)
+ 954 037a 8FBD      		out 0x2f,r24
+ 955 037c 0895      		ret
+ 956               	.LBE74:
+ 957               	.LBE73:
+ 958               		.cfi_endproc
+ 959               	.LFE21:
+ 961               	.global	timer1PWMAOn
+ 963               	timer1PWMAOn:
+ 964               	.LFB22:
+ 341:timer_2013.c  **** {
+ 965               		.loc 1 341 0
+ 966               		.cfi_startproc
+ 967               	/* prologue: function */
+ 968               	/* frame size = 0 */
+ 969               	/* stack size = 0 */
+ 970               	.L__stack_usage = 0
+ 344:timer_2013.c  **** 	sbi(TCCR1A,COM1A1);
+ 971               		.loc 1 344 0
+ 972 037e 8FB5      		in r24,0x2f
+ 973 0380 8068      		ori r24,lo8(-128)
+ 974 0382 8FBD      		out 0x2f,r24
+ 345:timer_2013.c  **** 	cbi(TCCR1A,COM1A0);
+ 975               		.loc 1 345 0
+ 976 0384 8FB5      		in r24,0x2f
+ 977 0386 8F7B      		andi r24,lo8(-65)
+ 978 0388 8FBD      		out 0x2f,r24
+ 979 038a 0895      		ret
+ 980               		.cfi_endproc
+ 981               	.LFE22:
+ 983               	.global	timer1PWMAOnInv
+ 985               	timer1PWMAOnInv:
+ 986               	.LFB23:
+ 349:timer_2013.c  **** {
+ 987               		.loc 1 349 0
+ 988               		.cfi_startproc
+ 989               	/* prologue: function */
+ 990               	/* frame size = 0 */
+ 991               	/* stack size = 0 */
+ 992               	.L__stack_usage = 0
+ 352:timer_2013.c  **** 	sbi(TCCR1A,COM1A1);
+ 993               		.loc 1 352 0
+ 994 038c 8FB5      		in r24,0x2f
+ 995 038e 8068      		ori r24,lo8(-128)
+ 996 0390 8FBD      		out 0x2f,r24
+ 353:timer_2013.c  **** 	cbi(TCCR1A,COM1A0);
+ 997               		.loc 1 353 0
+ 998 0392 8FB5      		in r24,0x2f
+ 999 0394 8F7B      		andi r24,lo8(-65)
+ 1000 0396 8FBD      		out 0x2f,r24
+ 1001 0398 0895      		ret
+ 1002               		.cfi_endproc
+ 1003               	.LFE23:
+ 1005               	.global	timer1PWMBOn
+ 1007               	timer1PWMBOn:
+ 1008               	.LFB24:
+ 357:timer_2013.c  **** {
+ 1009               		.loc 1 357 0
+ 1010               		.cfi_startproc
+ 1011               	/* prologue: function */
+ 1012               	/* frame size = 0 */
+ 1013               	/* stack size = 0 */
+ 1014               	.L__stack_usage = 0
+ 360:timer_2013.c  **** 	sbi(TCCR1A,COM1B1);
+ 1015               		.loc 1 360 0
+ 1016 039a 8FB5      		in r24,0x2f
+ 1017 039c 8062      		ori r24,lo8(32)
+ 1018 039e 8FBD      		out 0x2f,r24
+ 361:timer_2013.c  **** 	cbi(TCCR1A,COM1B0);
+ 1019               		.loc 1 361 0
+ 1020 03a0 8FB5      		in r24,0x2f
+ 1021 03a2 8F7E      		andi r24,lo8(-17)
+ 1022 03a4 8FBD      		out 0x2f,r24
+ 1023 03a6 0895      		ret
+ 1024               		.cfi_endproc
+ 1025               	.LFE24:
+ 1027               	.global	timer1PWMAOff
+ 1029               	timer1PWMAOff:
+ 1030               	.LFB25:
+ 365:timer_2013.c  **** {
+ 1031               		.loc 1 365 0
+ 1032               		.cfi_startproc
+ 1033               	/* prologue: function */
+ 1034               	/* frame size = 0 */
+ 1035               	/* stack size = 0 */
+ 1036               	.L__stack_usage = 0
+ 368:timer_2013.c  **** 	cbi(TCCR1A,COM1A1);
+ 1037               		.loc 1 368 0
+ 1038 03a8 8FB5      		in r24,0x2f
+ 1039 03aa 8F77      		andi r24,lo8(127)
+ 1040 03ac 8FBD      		out 0x2f,r24
+ 369:timer_2013.c  **** 	cbi(TCCR1A,COM1A0);
+ 1041               		.loc 1 369 0
+ 1042 03ae 8FB5      		in r24,0x2f
+ 1043 03b0 8F7B      		andi r24,lo8(-65)
+ 1044 03b2 8FBD      		out 0x2f,r24
+ 1045 03b4 0895      		ret
+ 1046               		.cfi_endproc
+ 1047               	.LFE25:
+ 1049               	.global	timer1PWMBOff
+ 1051               	timer1PWMBOff:
+ 1052               	.LFB26:
+ 373:timer_2013.c  **** {
+ 1053               		.loc 1 373 0
+ 1054               		.cfi_startproc
+ 1055               	/* prologue: function */
+ 1056               	/* frame size = 0 */
+ 1057               	/* stack size = 0 */
+ 1058               	.L__stack_usage = 0
+ 376:timer_2013.c  **** 	cbi(TCCR1A,COM1B1);
+ 1059               		.loc 1 376 0
+ 1060 03b6 8FB5      		in r24,0x2f
+ 1061 03b8 8F7D      		andi r24,lo8(-33)
+ 1062 03ba 8FBD      		out 0x2f,r24
+ 1063               		.loc 1 377 0
+ 1064 03bc 8FB5      		in r24,0x2f
+ 1065 03be 8F7E      		andi r24,lo8(-17)
+ 1066 03c0 8FBD      		out 0x2f,r24
+ 1067 03c2 0895      		ret
+ 1068               		.cfi_endproc
+ 1069               	.LFE26:
+ 1071               	.global	timer1PWMASet
+ 1073               	timer1PWMASet:
+ 1074               	.LFB27:
+ 378:timer_2013.c  **** }
+ 379:timer_2013.c  **** 
+ 380:timer_2013.c  **** void timer1PWMASet(u16 pwmDuty)
+ 381:timer_2013.c  **** {
+ 1075               		.loc 1 381 0
+ 1076               		.cfi_startproc
+ 1077               	.LVL47:
+ 1078               	/* prologue: function */
+ 1079               	/* frame size = 0 */
+ 1080               	/* stack size = 0 */
+ 1081               	.L__stack_usage = 0
+ 382:timer_2013.c  **** 	// set PWM (output compare) duty for channel A
+ 383:timer_2013.c  **** 	// this PWM output is generated on OC1A pin
+ 384:timer_2013.c  **** 	// NOTE:	pwmDuty should be in the range 0-255 for 8bit PWM
+ 385:timer_2013.c  **** 	//			pwmDuty should be in the range 0-511 for 9bit PWM
+ 386:timer_2013.c  **** 	//			pwmDuty should be in the range 0-1023 for 10bit PWM
+ 387:timer_2013.c  **** 	//outp( (pwmDuty>>8), OCR1AH);		// set the high 8bits of OCR1A
+ 388:timer_2013.c  **** 	//outp( (pwmDuty&0x00FF), OCR1AL);	// set the low 8bits of OCR1A
+ 389:timer_2013.c  **** 	OCR1A = pwmDuty;
+ 1082               		.loc 1 389 0
+ 1083 03c4 9BBD      		out 0x2a+1,r25
+ 1084 03c6 8ABD      		out 0x2a,r24
+ 1085 03c8 0895      		ret
+ 1086               		.cfi_endproc
+ 1087               	.LFE27:
+ 1089               	.global	timer1PWMBSet
+ 1091               	timer1PWMBSet:
+ 1092               	.LFB28:
+ 390:timer_2013.c  **** }
+ 391:timer_2013.c  **** 
+ 392:timer_2013.c  **** void timer1PWMBSet(u16 pwmDuty)
+ 393:timer_2013.c  **** {
+ 1093               		.loc 1 393 0
+ 1094               		.cfi_startproc
+ 1095               	.LVL48:
+ 1096               	/* prologue: function */
+ 1097               	/* frame size = 0 */
+ 1098               	/* stack size = 0 */
+ 1099               	.L__stack_usage = 0
+ 394:timer_2013.c  **** 	// set PWM (output compare) duty for channel B
+ 395:timer_2013.c  **** 	// this PWM output is generated on OC1B pin
+ 396:timer_2013.c  **** 	// NOTE:	pwmDuty should be in the range 0-255 for 8bit PWM
+ 397:timer_2013.c  **** 	//			pwmDuty should be in the range 0-511 for 9bit PWM
+ 398:timer_2013.c  **** 	//			pwmDuty should be in the range 0-1023 for 10bit PWM
+ 399:timer_2013.c  **** 	//outp( (pwmDuty>>8), OCR1BH);		// set the high 8bits of OCR1B
+ 400:timer_2013.c  **** 	//outp( (pwmDuty&0x00FF), OCR1BL);	// set the low 8bits of OCR1B
+ 401:timer_2013.c  **** 	OCR1B = pwmDuty;
+ 1100               		.loc 1 401 0
+ 1101 03ca 99BD      		out 0x28+1,r25
+ 1102 03cc 88BD      		out 0x28,r24
+ 1103 03ce 0895      		ret
+ 1104               		.cfi_endproc
+ 1105               	.LFE28:
+ 1107               	.global	__vector_9
+ 1109               	__vector_9:
+ 1110               	.LFB29:
+ 402:timer_2013.c  **** }
+ 403:timer_2013.c  **** 
+ 404:timer_2013.c  **** //! Interrupt handler for tcnt0 overflow interrupt
+ 405:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER0_OVF_vect)
+ 406:timer_2013.c  **** {
+ 1111               		.loc 1 406 0
+ 1112               		.cfi_startproc
+ 1113 03d0 1F92      		push r1
+ 1114               	.LCFI12:
+ 1115               		.cfi_def_cfa_offset 3
+ 1116               		.cfi_offset 1, -2
+ 1117 03d2 0F92      		push r0
+ 1118               	.LCFI13:
+ 1119               		.cfi_def_cfa_offset 4
+ 1120               		.cfi_offset 0, -3
+ 1121 03d4 0FB6      		in r0,__SREG__
+ 1122 03d6 0F92      		push r0
+ 1123 03d8 1124      		clr __zero_reg__
+ 1124 03da 2F93      		push r18
+ 1125               	.LCFI14:
+ 1126               		.cfi_def_cfa_offset 5
+ 1127               		.cfi_offset 18, -4
+ 1128 03dc 3F93      		push r19
+ 1129               	.LCFI15:
+ 1130               		.cfi_def_cfa_offset 6
+ 1131               		.cfi_offset 19, -5
+ 1132 03de 4F93      		push r20
+ 1133               	.LCFI16:
+ 1134               		.cfi_def_cfa_offset 7
+ 1135               		.cfi_offset 20, -6
+ 1136 03e0 5F93      		push r21
+ 1137               	.LCFI17:
+ 1138               		.cfi_def_cfa_offset 8
+ 1139               		.cfi_offset 21, -7
+ 1140 03e2 6F93      		push r22
+ 1141               	.LCFI18:
+ 1142               		.cfi_def_cfa_offset 9
+ 1143               		.cfi_offset 22, -8
+ 1144 03e4 7F93      		push r23
+ 1145               	.LCFI19:
+ 1146               		.cfi_def_cfa_offset 10
+ 1147               		.cfi_offset 23, -9
+ 1148 03e6 8F93      		push r24
+ 1149               	.LCFI20:
+ 1150               		.cfi_def_cfa_offset 11
+ 1151               		.cfi_offset 24, -10
+ 1152 03e8 9F93      		push r25
+ 1153               	.LCFI21:
+ 1154               		.cfi_def_cfa_offset 12
+ 1155               		.cfi_offset 25, -11
+ 1156 03ea AF93      		push r26
+ 1157               	.LCFI22:
+ 1158               		.cfi_def_cfa_offset 13
+ 1159               		.cfi_offset 26, -12
+ 1160 03ec BF93      		push r27
+ 1161               	.LCFI23:
+ 1162               		.cfi_def_cfa_offset 14
+ 1163               		.cfi_offset 27, -13
+ 1164 03ee EF93      		push r30
+ 1165               	.LCFI24:
+ 1166               		.cfi_def_cfa_offset 15
+ 1167               		.cfi_offset 30, -14
+ 1168 03f0 FF93      		push r31
+ 1169               	.LCFI25:
+ 1170               		.cfi_def_cfa_offset 16
+ 1171               		.cfi_offset 31, -15
+ 1172               	/* prologue: Signal */
+ 1173               	/* frame size = 0 */
+ 1174               	/* stack size = 15 */
+ 1175               	.L__stack_usage = 15
+ 407:timer_2013.c  **** 	Timer0Reg0++;			// increment low-order counter
+ 1176               		.loc 1 407 0
+ 1177 03f2 8091 0000 		lds r24,Timer0Reg0
+ 1178 03f6 9091 0000 		lds r25,Timer0Reg0+1
+ 1179 03fa A091 0000 		lds r26,Timer0Reg0+2
+ 1180 03fe B091 0000 		lds r27,Timer0Reg0+3
+ 1181 0402 0196      		adiw r24,1
+ 1182 0404 A11D      		adc r26,__zero_reg__
+ 1183 0406 B11D      		adc r27,__zero_reg__
+ 1184 0408 8093 0000 		sts Timer0Reg0,r24
+ 1185 040c 9093 0000 		sts Timer0Reg0+1,r25
+ 1186 0410 A093 0000 		sts Timer0Reg0+2,r26
+ 1187 0414 B093 0000 		sts Timer0Reg0+3,r27
+ 408:timer_2013.c  **** 
+ 409:timer_2013.c  **** 	// increment pause counter
+ 410:timer_2013.c  **** 	TimerPauseReg++;
+ 1188               		.loc 1 410 0
+ 1189 0418 8091 0000 		lds r24,TimerPauseReg
+ 1190 041c 9091 0000 		lds r25,TimerPauseReg+1
+ 1191 0420 A091 0000 		lds r26,TimerPauseReg+2
+ 1192 0424 B091 0000 		lds r27,TimerPauseReg+3
+ 1193 0428 0196      		adiw r24,1
+ 1194 042a A11D      		adc r26,__zero_reg__
+ 1195 042c B11D      		adc r27,__zero_reg__
+ 1196 042e 8093 0000 		sts TimerPauseReg,r24
+ 1197 0432 9093 0000 		sts TimerPauseReg+1,r25
+ 1198 0436 A093 0000 		sts TimerPauseReg+2,r26
+ 1199 043a B093 0000 		sts TimerPauseReg+3,r27
+ 411:timer_2013.c  **** 
+ 412:timer_2013.c  **** 	// if a user function is defined, execute it too
+ 413:timer_2013.c  **** 	if(TimerIntFunc[TIMER0OVERFLOW_INT])
+ 1200               		.loc 1 413 0
+ 1201 043e 8091 0000 		lds r24,TimerIntFunc
+ 1202 0442 9091 0000 		lds r25,TimerIntFunc+1
+ 1203 0446 892B      		or r24,r25
+ 1204 0448 01F0      		breq .L44
+ 414:timer_2013.c  **** 		TimerIntFunc[TIMER0OVERFLOW_INT]();
+ 1205               		.loc 1 414 0
+ 1206 044a E091 0000 		lds r30,TimerIntFunc
+ 1207 044e F091 0000 		lds r31,TimerIntFunc+1
+ 1208 0452 0995      		icall
+ 1209               	.LVL49:
+ 1210               	.L44:
+ 1211               	/* epilogue start */
+ 415:timer_2013.c  **** }
+ 1212               		.loc 1 415 0
+ 1213 0454 FF91      		pop r31
+ 1214 0456 EF91      		pop r30
+ 1215 0458 BF91      		pop r27
+ 1216 045a AF91      		pop r26
+ 1217 045c 9F91      		pop r25
+ 1218 045e 8F91      		pop r24
+ 1219 0460 7F91      		pop r23
+ 1220 0462 6F91      		pop r22
+ 1221 0464 5F91      		pop r21
+ 1222 0466 4F91      		pop r20
+ 1223 0468 3F91      		pop r19
+ 1224 046a 2F91      		pop r18
+ 1225 046c 0F90      		pop r0
+ 1226 046e 0FBE      		out __SREG__,r0
+ 1227 0470 0F90      		pop r0
+ 1228 0472 1F90      		pop r1
+ 1229 0474 1895      		reti
+ 1230               		.cfi_endproc
+ 1231               	.LFE29:
+ 1233               	.global	__vector_8
+ 1235               	__vector_8:
+ 1236               	.LFB30:
+ 416:timer_2013.c  **** 
+ 417:timer_2013.c  **** //! Interrupt handler for tcnt1 overflow interrupt
+ 418:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER1_OVF_vect)
+ 419:timer_2013.c  **** {
+ 1237               		.loc 1 419 0
+ 1238               		.cfi_startproc
+ 1239 0476 1F92      		push r1
+ 1240               	.LCFI26:
+ 1241               		.cfi_def_cfa_offset 3
+ 1242               		.cfi_offset 1, -2
+ 1243 0478 0F92      		push r0
+ 1244               	.LCFI27:
+ 1245               		.cfi_def_cfa_offset 4
+ 1246               		.cfi_offset 0, -3
+ 1247 047a 0FB6      		in r0,__SREG__
+ 1248 047c 0F92      		push r0
+ 1249 047e 1124      		clr __zero_reg__
+ 1250 0480 2F93      		push r18
+ 1251               	.LCFI28:
+ 1252               		.cfi_def_cfa_offset 5
+ 1253               		.cfi_offset 18, -4
+ 1254 0482 3F93      		push r19
+ 1255               	.LCFI29:
+ 1256               		.cfi_def_cfa_offset 6
+ 1257               		.cfi_offset 19, -5
+ 1258 0484 4F93      		push r20
+ 1259               	.LCFI30:
+ 1260               		.cfi_def_cfa_offset 7
+ 1261               		.cfi_offset 20, -6
+ 1262 0486 5F93      		push r21
+ 1263               	.LCFI31:
+ 1264               		.cfi_def_cfa_offset 8
+ 1265               		.cfi_offset 21, -7
+ 1266 0488 6F93      		push r22
+ 1267               	.LCFI32:
+ 1268               		.cfi_def_cfa_offset 9
+ 1269               		.cfi_offset 22, -8
+ 1270 048a 7F93      		push r23
+ 1271               	.LCFI33:
+ 1272               		.cfi_def_cfa_offset 10
+ 1273               		.cfi_offset 23, -9
+ 1274 048c 8F93      		push r24
+ 1275               	.LCFI34:
+ 1276               		.cfi_def_cfa_offset 11
+ 1277               		.cfi_offset 24, -10
+ 1278 048e 9F93      		push r25
+ 1279               	.LCFI35:
+ 1280               		.cfi_def_cfa_offset 12
+ 1281               		.cfi_offset 25, -11
+ 1282 0490 AF93      		push r26
+ 1283               	.LCFI36:
+ 1284               		.cfi_def_cfa_offset 13
+ 1285               		.cfi_offset 26, -12
+ 1286 0492 BF93      		push r27
+ 1287               	.LCFI37:
+ 1288               		.cfi_def_cfa_offset 14
+ 1289               		.cfi_offset 27, -13
+ 1290 0494 EF93      		push r30
+ 1291               	.LCFI38:
+ 1292               		.cfi_def_cfa_offset 15
+ 1293               		.cfi_offset 30, -14
+ 1294 0496 FF93      		push r31
+ 1295               	.LCFI39:
+ 1296               		.cfi_def_cfa_offset 16
+ 1297               		.cfi_offset 31, -15
+ 1298               	/* prologue: Signal */
+ 1299               	/* frame size = 0 */
+ 1300               	/* stack size = 15 */
+ 1301               	.L__stack_usage = 15
+ 420:timer_2013.c  **** 	// if a user function is defined, execute it
+ 421:timer_2013.c  **** 	if(TimerIntFunc[TIMER1OVERFLOW_INT])
+ 1302               		.loc 1 421 0
+ 1303 0498 8091 0000 		lds r24,TimerIntFunc+2
+ 1304 049c 9091 0000 		lds r25,TimerIntFunc+2+1
+ 1305 04a0 892B      		or r24,r25
+ 1306 04a2 01F0      		breq .L49
+ 422:timer_2013.c  **** 		TimerIntFunc[TIMER1OVERFLOW_INT]();
+ 1307               		.loc 1 422 0
+ 1308 04a4 E091 0000 		lds r30,TimerIntFunc+2
+ 1309 04a8 F091 0000 		lds r31,TimerIntFunc+2+1
+ 1310 04ac 0995      		icall
+ 1311               	.LVL50:
+ 1312               	.L49:
+ 1313               	/* epilogue start */
+ 423:timer_2013.c  **** }
+ 1314               		.loc 1 423 0
+ 1315 04ae FF91      		pop r31
+ 1316 04b0 EF91      		pop r30
+ 1317 04b2 BF91      		pop r27
+ 1318 04b4 AF91      		pop r26
+ 1319 04b6 9F91      		pop r25
+ 1320 04b8 8F91      		pop r24
+ 1321 04ba 7F91      		pop r23
+ 1322 04bc 6F91      		pop r22
+ 1323 04be 5F91      		pop r21
+ 1324 04c0 4F91      		pop r20
+ 1325 04c2 3F91      		pop r19
+ 1326 04c4 2F91      		pop r18
+ 1327 04c6 0F90      		pop r0
+ 1328 04c8 0FBE      		out __SREG__,r0
+ 1329 04ca 0F90      		pop r0
+ 1330 04cc 1F90      		pop r1
+ 1331 04ce 1895      		reti
+ 1332               		.cfi_endproc
+ 1333               	.LFE30:
+ 1335               	.global	__vector_4
+ 1337               	__vector_4:
+ 1338               	.LFB31:
+ 424:timer_2013.c  **** 
+ 425:timer_2013.c  **** #ifdef TCNT2	// support timer2 only if it exists
+ 426:timer_2013.c  **** //! Interrupt handler for tcnt2 overflow interrupt
+ 427:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER2_OVF_vect)
+ 428:timer_2013.c  **** {
+ 1339               		.loc 1 428 0
+ 1340               		.cfi_startproc
+ 1341 04d0 1F92      		push r1
+ 1342               	.LCFI40:
+ 1343               		.cfi_def_cfa_offset 3
+ 1344               		.cfi_offset 1, -2
+ 1345 04d2 0F92      		push r0
+ 1346               	.LCFI41:
+ 1347               		.cfi_def_cfa_offset 4
+ 1348               		.cfi_offset 0, -3
+ 1349 04d4 0FB6      		in r0,__SREG__
+ 1350 04d6 0F92      		push r0
+ 1351 04d8 1124      		clr __zero_reg__
+ 1352 04da 2F93      		push r18
+ 1353               	.LCFI42:
+ 1354               		.cfi_def_cfa_offset 5
+ 1355               		.cfi_offset 18, -4
+ 1356 04dc 3F93      		push r19
+ 1357               	.LCFI43:
+ 1358               		.cfi_def_cfa_offset 6
+ 1359               		.cfi_offset 19, -5
+ 1360 04de 4F93      		push r20
+ 1361               	.LCFI44:
+ 1362               		.cfi_def_cfa_offset 7
+ 1363               		.cfi_offset 20, -6
+ 1364 04e0 5F93      		push r21
+ 1365               	.LCFI45:
+ 1366               		.cfi_def_cfa_offset 8
+ 1367               		.cfi_offset 21, -7
+ 1368 04e2 6F93      		push r22
+ 1369               	.LCFI46:
+ 1370               		.cfi_def_cfa_offset 9
+ 1371               		.cfi_offset 22, -8
+ 1372 04e4 7F93      		push r23
+ 1373               	.LCFI47:
+ 1374               		.cfi_def_cfa_offset 10
+ 1375               		.cfi_offset 23, -9
+ 1376 04e6 8F93      		push r24
+ 1377               	.LCFI48:
+ 1378               		.cfi_def_cfa_offset 11
+ 1379               		.cfi_offset 24, -10
+ 1380 04e8 9F93      		push r25
+ 1381               	.LCFI49:
+ 1382               		.cfi_def_cfa_offset 12
+ 1383               		.cfi_offset 25, -11
+ 1384 04ea AF93      		push r26
+ 1385               	.LCFI50:
+ 1386               		.cfi_def_cfa_offset 13
+ 1387               		.cfi_offset 26, -12
+ 1388 04ec BF93      		push r27
+ 1389               	.LCFI51:
+ 1390               		.cfi_def_cfa_offset 14
+ 1391               		.cfi_offset 27, -13
+ 1392 04ee EF93      		push r30
+ 1393               	.LCFI52:
+ 1394               		.cfi_def_cfa_offset 15
+ 1395               		.cfi_offset 30, -14
+ 1396 04f0 FF93      		push r31
+ 1397               	.LCFI53:
+ 1398               		.cfi_def_cfa_offset 16
+ 1399               		.cfi_offset 31, -15
+ 1400               	/* prologue: Signal */
+ 1401               	/* frame size = 0 */
+ 1402               	/* stack size = 15 */
+ 1403               	.L__stack_usage = 15
+ 429:timer_2013.c  **** 	Timer2Reg0++;			// increment low-order counter
+ 1404               		.loc 1 429 0
+ 1405 04f2 8091 0000 		lds r24,Timer2Reg0
+ 1406 04f6 9091 0000 		lds r25,Timer2Reg0+1
+ 1407 04fa A091 0000 		lds r26,Timer2Reg0+2
+ 1408 04fe B091 0000 		lds r27,Timer2Reg0+3
+ 1409 0502 0196      		adiw r24,1
+ 1410 0504 A11D      		adc r26,__zero_reg__
+ 1411 0506 B11D      		adc r27,__zero_reg__
+ 1412 0508 8093 0000 		sts Timer2Reg0,r24
+ 1413 050c 9093 0000 		sts Timer2Reg0+1,r25
+ 1414 0510 A093 0000 		sts Timer2Reg0+2,r26
+ 1415 0514 B093 0000 		sts Timer2Reg0+3,r27
+ 430:timer_2013.c  **** 
+ 431:timer_2013.c  **** 	// if a user function is defined, execute it
+ 432:timer_2013.c  **** 	if(TimerIntFunc[TIMER2OVERFLOW_INT])
+ 1416               		.loc 1 432 0
+ 1417 0518 8091 0000 		lds r24,TimerIntFunc+10
+ 1418 051c 9091 0000 		lds r25,TimerIntFunc+10+1
+ 1419 0520 892B      		or r24,r25
+ 1420 0522 01F0      		breq .L54
+ 433:timer_2013.c  **** 		TimerIntFunc[TIMER2OVERFLOW_INT]();
+ 1421               		.loc 1 433 0
+ 1422 0524 E091 0000 		lds r30,TimerIntFunc+10
+ 1423 0528 F091 0000 		lds r31,TimerIntFunc+10+1
+ 1424 052c 0995      		icall
+ 1425               	.LVL51:
+ 1426               	.L54:
+ 1427               	/* epilogue start */
+ 434:timer_2013.c  **** }
+ 1428               		.loc 1 434 0
+ 1429 052e FF91      		pop r31
+ 1430 0530 EF91      		pop r30
+ 1431 0532 BF91      		pop r27
+ 1432 0534 AF91      		pop r26
+ 1433 0536 9F91      		pop r25
+ 1434 0538 8F91      		pop r24
+ 1435 053a 7F91      		pop r23
+ 1436 053c 6F91      		pop r22
+ 1437 053e 5F91      		pop r21
+ 1438 0540 4F91      		pop r20
+ 1439 0542 3F91      		pop r19
+ 1440 0544 2F91      		pop r18
+ 1441 0546 0F90      		pop r0
+ 1442 0548 0FBE      		out __SREG__,r0
+ 1443 054a 0F90      		pop r0
+ 1444 054c 1F90      		pop r1
+ 1445 054e 1895      		reti
+ 1446               		.cfi_endproc
+ 1447               	.LFE31:
+ 1449               	.global	__vector_6
+ 1451               	__vector_6:
+ 1452               	.LFB32:
+ 435:timer_2013.c  **** #endif
+ 436:timer_2013.c  **** 
+ 437:timer_2013.c  **** #ifdef OCR0
+ 438:timer_2013.c  **** // include support for Output Compare 0 for new AVR processors that support it
+ 439:timer_2013.c  **** //! Interrupt handler for OutputCompare0 match (OC0) interrupt
+ 440:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(SIG_OUTPUT_COMPARE0)
+ 441:timer_2013.c  **** {
+ 442:timer_2013.c  **** 	// if a user function is defined, execute it
+ 443:timer_2013.c  **** 	if(TimerIntFunc[TIMER0OUTCOMPARE_INT])
+ 444:timer_2013.c  **** 		TimerIntFunc[TIMER0OUTCOMPARE_INT]();
+ 445:timer_2013.c  **** }
+ 446:timer_2013.c  **** #endif
+ 447:timer_2013.c  **** 
+ 448:timer_2013.c  **** //! Interrupt handler for CutputCompare1A match (OC1A) interrupt
+ 449:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER1_COMPA_vect)
+ 450:timer_2013.c  **** {
+ 1453               		.loc 1 450 0
+ 1454               		.cfi_startproc
+ 1455 0550 1F92      		push r1
+ 1456               	.LCFI54:
+ 1457               		.cfi_def_cfa_offset 3
+ 1458               		.cfi_offset 1, -2
+ 1459 0552 0F92      		push r0
+ 1460               	.LCFI55:
+ 1461               		.cfi_def_cfa_offset 4
+ 1462               		.cfi_offset 0, -3
+ 1463 0554 0FB6      		in r0,__SREG__
+ 1464 0556 0F92      		push r0
+ 1465 0558 1124      		clr __zero_reg__
+ 1466 055a 2F93      		push r18
+ 1467               	.LCFI56:
+ 1468               		.cfi_def_cfa_offset 5
+ 1469               		.cfi_offset 18, -4
+ 1470 055c 3F93      		push r19
+ 1471               	.LCFI57:
+ 1472               		.cfi_def_cfa_offset 6
+ 1473               		.cfi_offset 19, -5
+ 1474 055e 4F93      		push r20
+ 1475               	.LCFI58:
+ 1476               		.cfi_def_cfa_offset 7
+ 1477               		.cfi_offset 20, -6
+ 1478 0560 5F93      		push r21
+ 1479               	.LCFI59:
+ 1480               		.cfi_def_cfa_offset 8
+ 1481               		.cfi_offset 21, -7
+ 1482 0562 6F93      		push r22
+ 1483               	.LCFI60:
+ 1484               		.cfi_def_cfa_offset 9
+ 1485               		.cfi_offset 22, -8
+ 1486 0564 7F93      		push r23
+ 1487               	.LCFI61:
+ 1488               		.cfi_def_cfa_offset 10
+ 1489               		.cfi_offset 23, -9
+ 1490 0566 8F93      		push r24
+ 1491               	.LCFI62:
+ 1492               		.cfi_def_cfa_offset 11
+ 1493               		.cfi_offset 24, -10
+ 1494 0568 9F93      		push r25
+ 1495               	.LCFI63:
+ 1496               		.cfi_def_cfa_offset 12
+ 1497               		.cfi_offset 25, -11
+ 1498 056a AF93      		push r26
+ 1499               	.LCFI64:
+ 1500               		.cfi_def_cfa_offset 13
+ 1501               		.cfi_offset 26, -12
+ 1502 056c BF93      		push r27
+ 1503               	.LCFI65:
+ 1504               		.cfi_def_cfa_offset 14
+ 1505               		.cfi_offset 27, -13
+ 1506 056e EF93      		push r30
+ 1507               	.LCFI66:
+ 1508               		.cfi_def_cfa_offset 15
+ 1509               		.cfi_offset 30, -14
+ 1510 0570 FF93      		push r31
+ 1511               	.LCFI67:
+ 1512               		.cfi_def_cfa_offset 16
+ 1513               		.cfi_offset 31, -15
+ 1514               	/* prologue: Signal */
+ 1515               	/* frame size = 0 */
+ 1516               	/* stack size = 15 */
+ 1517               	.L__stack_usage = 15
+ 451:timer_2013.c  **** 	// if a user function is defined, execute it
+ 452:timer_2013.c  **** 	if(TimerIntFunc[TIMER1OUTCOMPAREA_INT])
+ 1518               		.loc 1 452 0
+ 1519 0572 8091 0000 		lds r24,TimerIntFunc+4
+ 1520 0576 9091 0000 		lds r25,TimerIntFunc+4+1
+ 1521 057a 892B      		or r24,r25
+ 1522 057c 01F0      		breq .L59
+ 453:timer_2013.c  **** 		TimerIntFunc[TIMER1OUTCOMPAREA_INT]();
+ 1523               		.loc 1 453 0
+ 1524 057e E091 0000 		lds r30,TimerIntFunc+4
+ 1525 0582 F091 0000 		lds r31,TimerIntFunc+4+1
+ 1526 0586 0995      		icall
+ 1527               	.LVL52:
+ 1528               	.L59:
+ 1529               	/* epilogue start */
+ 454:timer_2013.c  **** }
+ 1530               		.loc 1 454 0
+ 1531 0588 FF91      		pop r31
+ 1532 058a EF91      		pop r30
+ 1533 058c BF91      		pop r27
+ 1534 058e AF91      		pop r26
+ 1535 0590 9F91      		pop r25
+ 1536 0592 8F91      		pop r24
+ 1537 0594 7F91      		pop r23
+ 1538 0596 6F91      		pop r22
+ 1539 0598 5F91      		pop r21
+ 1540 059a 4F91      		pop r20
+ 1541 059c 3F91      		pop r19
+ 1542 059e 2F91      		pop r18
+ 1543 05a0 0F90      		pop r0
+ 1544 05a2 0FBE      		out __SREG__,r0
+ 1545 05a4 0F90      		pop r0
+ 1546 05a6 1F90      		pop r1
+ 1547 05a8 1895      		reti
+ 1548               		.cfi_endproc
+ 1549               	.LFE32:
+ 1551               	.global	__vector_7
+ 1553               	__vector_7:
+ 1554               	.LFB33:
+ 455:timer_2013.c  **** 
+ 456:timer_2013.c  **** //! Interrupt handler for OutputCompare1B match (OC1B) interrupt
+ 457:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER1_COMPB_vect)
+ 458:timer_2013.c  **** {
+ 1555               		.loc 1 458 0
+ 1556               		.cfi_startproc
+ 1557 05aa 1F92      		push r1
+ 1558               	.LCFI68:
+ 1559               		.cfi_def_cfa_offset 3
+ 1560               		.cfi_offset 1, -2
+ 1561 05ac 0F92      		push r0
+ 1562               	.LCFI69:
+ 1563               		.cfi_def_cfa_offset 4
+ 1564               		.cfi_offset 0, -3
+ 1565 05ae 0FB6      		in r0,__SREG__
+ 1566 05b0 0F92      		push r0
+ 1567 05b2 1124      		clr __zero_reg__
+ 1568 05b4 2F93      		push r18
+ 1569               	.LCFI70:
+ 1570               		.cfi_def_cfa_offset 5
+ 1571               		.cfi_offset 18, -4
+ 1572 05b6 3F93      		push r19
+ 1573               	.LCFI71:
+ 1574               		.cfi_def_cfa_offset 6
+ 1575               		.cfi_offset 19, -5
+ 1576 05b8 4F93      		push r20
+ 1577               	.LCFI72:
+ 1578               		.cfi_def_cfa_offset 7
+ 1579               		.cfi_offset 20, -6
+ 1580 05ba 5F93      		push r21
+ 1581               	.LCFI73:
+ 1582               		.cfi_def_cfa_offset 8
+ 1583               		.cfi_offset 21, -7
+ 1584 05bc 6F93      		push r22
+ 1585               	.LCFI74:
+ 1586               		.cfi_def_cfa_offset 9
+ 1587               		.cfi_offset 22, -8
+ 1588 05be 7F93      		push r23
+ 1589               	.LCFI75:
+ 1590               		.cfi_def_cfa_offset 10
+ 1591               		.cfi_offset 23, -9
+ 1592 05c0 8F93      		push r24
+ 1593               	.LCFI76:
+ 1594               		.cfi_def_cfa_offset 11
+ 1595               		.cfi_offset 24, -10
+ 1596 05c2 9F93      		push r25
+ 1597               	.LCFI77:
+ 1598               		.cfi_def_cfa_offset 12
+ 1599               		.cfi_offset 25, -11
+ 1600 05c4 AF93      		push r26
+ 1601               	.LCFI78:
+ 1602               		.cfi_def_cfa_offset 13
+ 1603               		.cfi_offset 26, -12
+ 1604 05c6 BF93      		push r27
+ 1605               	.LCFI79:
+ 1606               		.cfi_def_cfa_offset 14
+ 1607               		.cfi_offset 27, -13
+ 1608 05c8 EF93      		push r30
+ 1609               	.LCFI80:
+ 1610               		.cfi_def_cfa_offset 15
+ 1611               		.cfi_offset 30, -14
+ 1612 05ca FF93      		push r31
+ 1613               	.LCFI81:
+ 1614               		.cfi_def_cfa_offset 16
+ 1615               		.cfi_offset 31, -15
+ 1616               	/* prologue: Signal */
+ 1617               	/* frame size = 0 */
+ 1618               	/* stack size = 15 */
+ 1619               	.L__stack_usage = 15
+ 459:timer_2013.c  **** 	// if a user function is defined, execute it
+ 460:timer_2013.c  **** 	if(TimerIntFunc[TIMER1OUTCOMPAREB_INT])
+ 1620               		.loc 1 460 0
+ 1621 05cc 8091 0000 		lds r24,TimerIntFunc+6
+ 1622 05d0 9091 0000 		lds r25,TimerIntFunc+6+1
+ 1623 05d4 892B      		or r24,r25
+ 1624 05d6 01F0      		breq .L64
+ 461:timer_2013.c  **** 		TimerIntFunc[TIMER1OUTCOMPAREB_INT]();
+ 1625               		.loc 1 461 0
+ 1626 05d8 E091 0000 		lds r30,TimerIntFunc+6
+ 1627 05dc F091 0000 		lds r31,TimerIntFunc+6+1
+ 1628 05e0 0995      		icall
+ 1629               	.LVL53:
+ 1630               	.L64:
+ 1631               	/* epilogue start */
+ 462:timer_2013.c  **** }
+ 1632               		.loc 1 462 0
+ 1633 05e2 FF91      		pop r31
+ 1634 05e4 EF91      		pop r30
+ 1635 05e6 BF91      		pop r27
+ 1636 05e8 AF91      		pop r26
+ 1637 05ea 9F91      		pop r25
+ 1638 05ec 8F91      		pop r24
+ 1639 05ee 7F91      		pop r23
+ 1640 05f0 6F91      		pop r22
+ 1641 05f2 5F91      		pop r21
+ 1642 05f4 4F91      		pop r20
+ 1643 05f6 3F91      		pop r19
+ 1644 05f8 2F91      		pop r18
+ 1645 05fa 0F90      		pop r0
+ 1646 05fc 0FBE      		out __SREG__,r0
+ 1647 05fe 0F90      		pop r0
+ 1648 0600 1F90      		pop r1
+ 1649 0602 1895      		reti
+ 1650               		.cfi_endproc
+ 1651               	.LFE33:
+ 1653               	.global	__vector_5
+ 1655               	__vector_5:
+ 1656               	.LFB34:
+ 463:timer_2013.c  **** 
+ 464:timer_2013.c  **** //! Interrupt handler for InputCapture1 (IC1) interrupt
+ 465:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER1_CAPT_vect)
+ 466:timer_2013.c  **** {
+ 1657               		.loc 1 466 0
+ 1658               		.cfi_startproc
+ 1659 0604 1F92      		push r1
+ 1660               	.LCFI82:
+ 1661               		.cfi_def_cfa_offset 3
+ 1662               		.cfi_offset 1, -2
+ 1663 0606 0F92      		push r0
+ 1664               	.LCFI83:
+ 1665               		.cfi_def_cfa_offset 4
+ 1666               		.cfi_offset 0, -3
+ 1667 0608 0FB6      		in r0,__SREG__
+ 1668 060a 0F92      		push r0
+ 1669 060c 1124      		clr __zero_reg__
+ 1670 060e 2F93      		push r18
+ 1671               	.LCFI84:
+ 1672               		.cfi_def_cfa_offset 5
+ 1673               		.cfi_offset 18, -4
+ 1674 0610 3F93      		push r19
+ 1675               	.LCFI85:
+ 1676               		.cfi_def_cfa_offset 6
+ 1677               		.cfi_offset 19, -5
+ 1678 0612 4F93      		push r20
+ 1679               	.LCFI86:
+ 1680               		.cfi_def_cfa_offset 7
+ 1681               		.cfi_offset 20, -6
+ 1682 0614 5F93      		push r21
+ 1683               	.LCFI87:
+ 1684               		.cfi_def_cfa_offset 8
+ 1685               		.cfi_offset 21, -7
+ 1686 0616 6F93      		push r22
+ 1687               	.LCFI88:
+ 1688               		.cfi_def_cfa_offset 9
+ 1689               		.cfi_offset 22, -8
+ 1690 0618 7F93      		push r23
+ 1691               	.LCFI89:
+ 1692               		.cfi_def_cfa_offset 10
+ 1693               		.cfi_offset 23, -9
+ 1694 061a 8F93      		push r24
+ 1695               	.LCFI90:
+ 1696               		.cfi_def_cfa_offset 11
+ 1697               		.cfi_offset 24, -10
+ 1698 061c 9F93      		push r25
+ 1699               	.LCFI91:
+ 1700               		.cfi_def_cfa_offset 12
+ 1701               		.cfi_offset 25, -11
+ 1702 061e AF93      		push r26
+ 1703               	.LCFI92:
+ 1704               		.cfi_def_cfa_offset 13
+ 1705               		.cfi_offset 26, -12
+ 1706 0620 BF93      		push r27
+ 1707               	.LCFI93:
+ 1708               		.cfi_def_cfa_offset 14
+ 1709               		.cfi_offset 27, -13
+ 1710 0622 EF93      		push r30
+ 1711               	.LCFI94:
+ 1712               		.cfi_def_cfa_offset 15
+ 1713               		.cfi_offset 30, -14
+ 1714 0624 FF93      		push r31
+ 1715               	.LCFI95:
+ 1716               		.cfi_def_cfa_offset 16
+ 1717               		.cfi_offset 31, -15
+ 1718               	/* prologue: Signal */
+ 1719               	/* frame size = 0 */
+ 1720               	/* stack size = 15 */
+ 1721               	.L__stack_usage = 15
+ 467:timer_2013.c  **** 	// if a user function is defined, execute it
+ 468:timer_2013.c  **** 	if(TimerIntFunc[TIMER1INPUTCAPTURE_INT])
+ 1722               		.loc 1 468 0
+ 1723 0626 8091 0000 		lds r24,TimerIntFunc+8
+ 1724 062a 9091 0000 		lds r25,TimerIntFunc+8+1
+ 1725 062e 892B      		or r24,r25
+ 1726 0630 01F0      		breq .L69
+ 469:timer_2013.c  **** 		TimerIntFunc[TIMER1INPUTCAPTURE_INT]();
+ 1727               		.loc 1 469 0
+ 1728 0632 E091 0000 		lds r30,TimerIntFunc+8
+ 1729 0636 F091 0000 		lds r31,TimerIntFunc+8+1
+ 1730 063a 0995      		icall
+ 1731               	.LVL54:
+ 1732               	.L69:
+ 1733               	/* epilogue start */
+ 470:timer_2013.c  **** }
+ 1734               		.loc 1 470 0
+ 1735 063c FF91      		pop r31
+ 1736 063e EF91      		pop r30
+ 1737 0640 BF91      		pop r27
+ 1738 0642 AF91      		pop r26
+ 1739 0644 9F91      		pop r25
+ 1740 0646 8F91      		pop r24
+ 1741 0648 7F91      		pop r23
+ 1742 064a 6F91      		pop r22
+ 1743 064c 5F91      		pop r21
+ 1744 064e 4F91      		pop r20
+ 1745 0650 3F91      		pop r19
+ 1746 0652 2F91      		pop r18
+ 1747 0654 0F90      		pop r0
+ 1748 0656 0FBE      		out __SREG__,r0
+ 1749 0658 0F90      		pop r0
+ 1750 065a 1F90      		pop r1
+ 1751 065c 1895      		reti
+ 1752               		.cfi_endproc
+ 1753               	.LFE34:
+ 1755               	.global	__vector_3
+ 1757               	__vector_3:
+ 1758               	.LFB35:
+ 471:timer_2013.c  **** 
+ 472:timer_2013.c  **** //! Interrupt handler for OutputCompare2 match (OC2) interrupt
+ 473:timer_2013.c  **** TIMER_INTERRUPT_HANDLER(TIMER2_COMP_vect)
+ 474:timer_2013.c  **** {
+ 1759               		.loc 1 474 0
+ 1760               		.cfi_startproc
+ 1761 065e 1F92      		push r1
+ 1762               	.LCFI96:
+ 1763               		.cfi_def_cfa_offset 3
+ 1764               		.cfi_offset 1, -2
+ 1765 0660 0F92      		push r0
+ 1766               	.LCFI97:
+ 1767               		.cfi_def_cfa_offset 4
+ 1768               		.cfi_offset 0, -3
+ 1769 0662 0FB6      		in r0,__SREG__
+ 1770 0664 0F92      		push r0
+ 1771 0666 1124      		clr __zero_reg__
+ 1772 0668 2F93      		push r18
+ 1773               	.LCFI98:
+ 1774               		.cfi_def_cfa_offset 5
+ 1775               		.cfi_offset 18, -4
+ 1776 066a 3F93      		push r19
+ 1777               	.LCFI99:
+ 1778               		.cfi_def_cfa_offset 6
+ 1779               		.cfi_offset 19, -5
+ 1780 066c 4F93      		push r20
+ 1781               	.LCFI100:
+ 1782               		.cfi_def_cfa_offset 7
+ 1783               		.cfi_offset 20, -6
+ 1784 066e 5F93      		push r21
+ 1785               	.LCFI101:
+ 1786               		.cfi_def_cfa_offset 8
+ 1787               		.cfi_offset 21, -7
+ 1788 0670 6F93      		push r22
+ 1789               	.LCFI102:
+ 1790               		.cfi_def_cfa_offset 9
+ 1791               		.cfi_offset 22, -8
+ 1792 0672 7F93      		push r23
+ 1793               	.LCFI103:
+ 1794               		.cfi_def_cfa_offset 10
+ 1795               		.cfi_offset 23, -9
+ 1796 0674 8F93      		push r24
+ 1797               	.LCFI104:
+ 1798               		.cfi_def_cfa_offset 11
+ 1799               		.cfi_offset 24, -10
+ 1800 0676 9F93      		push r25
+ 1801               	.LCFI105:
+ 1802               		.cfi_def_cfa_offset 12
+ 1803               		.cfi_offset 25, -11
+ 1804 0678 AF93      		push r26
+ 1805               	.LCFI106:
+ 1806               		.cfi_def_cfa_offset 13
+ 1807               		.cfi_offset 26, -12
+ 1808 067a BF93      		push r27
+ 1809               	.LCFI107:
+ 1810               		.cfi_def_cfa_offset 14
+ 1811               		.cfi_offset 27, -13
+ 1812 067c EF93      		push r30
+ 1813               	.LCFI108:
+ 1814               		.cfi_def_cfa_offset 15
+ 1815               		.cfi_offset 30, -14
+ 1816 067e FF93      		push r31
+ 1817               	.LCFI109:
+ 1818               		.cfi_def_cfa_offset 16
+ 1819               		.cfi_offset 31, -15
+ 1820               	/* prologue: Signal */
+ 1821               	/* frame size = 0 */
+ 1822               	/* stack size = 15 */
+ 1823               	.L__stack_usage = 15
+ 475:timer_2013.c  **** 	// if a user function is defined, execute it
+ 476:timer_2013.c  **** 	if(TimerIntFunc[TIMER2OUTCOMPARE_INT])
+ 1824               		.loc 1 476 0
+ 1825 0680 8091 0000 		lds r24,TimerIntFunc+12
+ 1826 0684 9091 0000 		lds r25,TimerIntFunc+12+1
+ 1827 0688 892B      		or r24,r25
+ 1828 068a 01F0      		breq .L74
+ 477:timer_2013.c  **** 		TimerIntFunc[TIMER2OUTCOMPARE_INT]();
+ 1829               		.loc 1 477 0
+ 1830 068c E091 0000 		lds r30,TimerIntFunc+12
+ 1831 0690 F091 0000 		lds r31,TimerIntFunc+12+1
+ 1832 0694 0995      		icall
+ 1833               	.LVL55:
+ 1834               	.L74:
+ 1835               	/* epilogue start */
+ 478:timer_2013.c  **** }
+ 1836               		.loc 1 478 0
+ 1837 0696 FF91      		pop r31
+ 1838 0698 EF91      		pop r30
+ 1839 069a BF91      		pop r27
+ 1840 069c AF91      		pop r26
+ 1841 069e 9F91      		pop r25
+ 1842 06a0 8F91      		pop r24
+ 1843 06a2 7F91      		pop r23
+ 1844 06a4 6F91      		pop r22
+ 1845 06a6 5F91      		pop r21
+ 1846 06a8 4F91      		pop r20
+ 1847 06aa 3F91      		pop r19
+ 1848 06ac 2F91      		pop r18
+ 1849 06ae 0F90      		pop r0
+ 1850 06b0 0FBE      		out __SREG__,r0
+ 1851 06b2 0F90      		pop r0
+ 1852 06b4 1F90      		pop r1
+ 1853 06b6 1895      		reti
+ 1854               		.cfi_endproc
+ 1855               	.LFE35:
+ 1857               		.local	TimerIntFunc
+ 1858               		.comm	TimerIntFunc,14,1
+ 1859               		.comm	Timer2Reg0,4,1
+ 1860               		.comm	Timer0Reg0,4,1
+ 1861               		.comm	TimerPauseReg,4,1
+ 1862               	.global	TimerRTCPrescaleFactor
+ 1863               		.section	.progmem.data,"a",@progbits
+ 1866               	TimerRTCPrescaleFactor:
+ 1867 0000 0000      		.word	0
+ 1868 0002 0100      		.word	1
+ 1869 0004 0800      		.word	8
+ 1870 0006 2000      		.word	32
+ 1871 0008 4000      		.word	64
+ 1872 000a 8000      		.word	128
+ 1873 000c 0001      		.word	256
+ 1874 000e 0004      		.word	1024
+ 1875               	.global	TimerPrescaleFactor
+ 1878               	TimerPrescaleFactor:
+ 1879 0010 0000      		.word	0
+ 1880 0012 0100      		.word	1
+ 1881 0014 0800      		.word	8
+ 1882 0016 4000      		.word	64
+ 1883 0018 0001      		.word	256
+ 1884 001a 0004      		.word	1024
+ 1885               		.text
+ 1886               	.Letext0:
+ 1887               		.file 2 "c:\\program files (x86)\\atmel\\atmel toolchain\\avr8 gcc\\native\\3.4.2.939\\avr8-gnu-to
+ 1888               		.file 3 "avrlibtypes.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 timer_2013.c
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:2      *ABS*:0000003e __SP_H__
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:3      *ABS*:0000003d __SP_L__
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:4      *ABS*:0000003f __SREG__
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:5      *ABS*:00000000 __tmp_reg__
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:6      *ABS*:00000001 __zero_reg__
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:12     .text:00000000 delay_us
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:28     .text:00000002 timerInit
+                             .bss:00000000 TimerIntFunc
+                            *COM*:00000004 Timer0Reg0
+                            *COM*:00000004 Timer2Reg0
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:154    .text:00000090 timer0Init
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:193    .text:000000b2 timer1Init
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:225    .text:000000c6 timer2Init
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:264    .text:000000e8 timer0SetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:284    .text:000000f2 timer1SetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:304    .text:000000fc timer2SetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:324    .text:00000106 timer0GetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1878   .progmem.data:00000010 TimerPrescaleFactor
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:359    .text:0000011c timer1GetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:394    .text:00000132 timer2GetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1866   .progmem.data:00000000 TimerRTCPrescaleFactor
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:429    .text:00000148 timerAttach
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:457    .text:0000015e timerDetach
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:485    .text:00000174 timerPause
+                            *COM*:00000004 TimerPauseReg
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:695    .text:00000288 timer0ClearOverflowCount
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:714    .text:0000029a timer0GetOverflowCount
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:747    .text:000002b8 timer2ClearOverflowCount
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:766    .text:000002ca timer2GetOverflowCount
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:799    .text:000002e8 timer1PWMInit
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:877    .text:00000332 timer1PWMInitICR
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:917    .text:00000358 timer1PWMOff
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:963    .text:0000037e timer1PWMAOn
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:985    .text:0000038c timer1PWMAOnInv
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1007   .text:0000039a timer1PWMBOn
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1029   .text:000003a8 timer1PWMAOff
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1051   .text:000003b6 timer1PWMBOff
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1073   .text:000003c4 timer1PWMASet
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1091   .text:000003ca timer1PWMBSet
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1109   .text:000003d0 __vector_9
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1235   .text:00000476 __vector_8
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1337   .text:000004d0 __vector_4
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1451   .text:00000550 __vector_6
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1553   .text:000005aa __vector_7
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1655   .text:00000604 __vector_5
+C:\Users\Nissanka\AppData\Local\Temp\ccxFcMpv.s:1757   .text:0000065e __vector_3
+
+UNDEFINED SYMBOLS
+__divmodsi4
+__udivmodsi4
+__muluhisi3
+__do_clear_bss

@@ -1,0 +1,417 @@
+   1               		.file	"a2d_2013.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	a2dInit
+  12               	a2dInit:
+  13               	.LFB0:
+  14               		.file 1 "a2d_2013.c"
+   1:a2d_2013.c    **** /*! \file a2d.c \brief Analog-to-Digital converter function library. */
+   2:a2d_2013.c    **** //*****************************************************************************
+   3:a2d_2013.c    **** //
+   4:a2d_2013.c    **** // File Name	: 'a2d.c'
+   5:a2d_2013.c    **** // Title		: Analog-to-digital converter functions
+   6:a2d_2013.c    **** // Author		: Pascal Stang - Copyright (C) 2002
+   7:a2d_2013.c    **** // Created		: 2002-04-08
+   8:a2d_2013.c    **** // Revised		: 2002-09-30
+   9:a2d_2013.c    **** // Version		: 1.1
+  10:a2d_2013.c    **** // Target MCU	: Atmel AVR series
+  11:a2d_2013.c    **** // Editor Tabs	: 4
+  12:a2d_2013.c    **** //
+  13:a2d_2013.c    **** // This code is distributed under the GNU Public License
+  14:a2d_2013.c    **** //		which can be found at http://www.gnu.org/licenses/gpl.txt
+  15:a2d_2013.c    **** //
+  16:a2d_2013.c    **** //*****************************************************************************
+  17:a2d_2013.c    **** 
+  18:a2d_2013.c    **** #include <avr/io.h>
+  19:a2d_2013.c    **** #include <avr/signal.h>
+  20:a2d_2013.c    **** #include <avr/interrupt.h>
+  21:a2d_2013.c    **** 
+  22:a2d_2013.c    **** #include "global.h"
+  23:a2d_2013.c    **** #include "a2d.h"
+  24:a2d_2013.c    **** 
+  25:a2d_2013.c    **** // global variables
+  26:a2d_2013.c    **** 
+  27:a2d_2013.c    **** //! Software flag used to indicate when
+  28:a2d_2013.c    **** /// the a2d conversion is complete.
+  29:a2d_2013.c    **** volatile unsigned char a2dCompleteFlag;
+  30:a2d_2013.c    **** 
+  31:a2d_2013.c    **** // functions
+  32:a2d_2013.c    **** 
+  33:a2d_2013.c    **** // initialize a2d converter
+  34:a2d_2013.c    **** void a2dInit(void)
+  35:a2d_2013.c    **** {
+  15               		.loc 1 35 0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
+  36:a2d_2013.c    **** 	sbi(ADCSR, ADEN);				// enable ADC (turn on ADC power)
+  21               		.loc 1 36 0
+  22 0000 379A      		sbi 0x6,7
+  37:a2d_2013.c    **** 	cbi(ADCSR, ADFR);				// default to single sample convert mode
+  23               		.loc 1 37 0
+  24 0002 3598      		cbi 0x6,5
+  25               	.LVL0:
+  26               	.LBB6:
+  27               	.LBB7:
+  38:a2d_2013.c    **** 	a2dSetPrescaler(ADC_PRESCALE);	// set default prescaler
+  39:a2d_2013.c    **** 	a2dSetReference(ADC_REFERENCE);	// set default reference
+  40:a2d_2013.c    **** 	cbi(ADMUX, ADLAR);				// set to right-adjusted result
+  41:a2d_2013.c    **** 
+  42:a2d_2013.c    **** 	sbi(ADCSR, ADIE);				// enable ADC interrupts
+  43:a2d_2013.c    **** 
+  44:a2d_2013.c    **** 	a2dCompleteFlag = FALSE;		// clear conversion complete flag
+  45:a2d_2013.c    **** 	sei();							// turn on interrupts (if not already on)
+  46:a2d_2013.c    **** }
+  47:a2d_2013.c    **** 
+  48:a2d_2013.c    **** // turn off a2d converter
+  49:a2d_2013.c    **** void a2dOff(void)
+  50:a2d_2013.c    **** {
+  51:a2d_2013.c    **** 	cbi(ADCSR, ADIE);				// disable ADC interrupts
+  52:a2d_2013.c    **** 	cbi(ADCSR, ADEN);				// disable ADC (turn off ADC power)
+  53:a2d_2013.c    **** }
+  54:a2d_2013.c    **** 
+  55:a2d_2013.c    **** // configure A2D converter clock division (prescaling)
+  56:a2d_2013.c    **** void a2dSetPrescaler(unsigned char prescale)
+  57:a2d_2013.c    **** {
+  58:a2d_2013.c    **** 	outb(ADCSR, ((inb(ADCSR) & ~ADC_PRESCALE_MASK) | prescale));
+  28               		.loc 1 58 0
+  29 0004 86B1      		in r24,0x6
+  30 0006 887F      		andi r24,lo8(-8)
+  31 0008 8660      		ori r24,lo8(6)
+  32 000a 86B9      		out 0x6,r24
+  33               	.LVL1:
+  34               	.LBE7:
+  35               	.LBE6:
+  36               	.LBB8:
+  37               	.LBB9:
+  59:a2d_2013.c    **** }
+  60:a2d_2013.c    **** 
+  61:a2d_2013.c    **** // configure A2D converter voltage reference
+  62:a2d_2013.c    **** void a2dSetReference(unsigned char ref)
+  63:a2d_2013.c    **** {
+  64:a2d_2013.c    **** 	outb(ADMUX, ((inb(ADMUX) & ~ADC_REFERENCE_MASK) | (ref<<6)));
+  38               		.loc 1 64 0
+  39 000c 87B1      		in r24,0x7
+  40               	.LBE9:
+  41 000e 8F73      		andi r24,lo8(63)
+  42               	.LBB10:
+  43 0010 8064      		ori r24,lo8(64)
+  44 0012 87B9      		out 0x7,r24
+  45               	.LBE10:
+  46               	.LBE8:
+  40:a2d_2013.c    **** 	cbi(ADMUX, ADLAR);				// set to right-adjusted result
+  47               		.loc 1 40 0
+  48 0014 3D98      		cbi 0x7,5
+  42:a2d_2013.c    **** 	sbi(ADCSR, ADIE);				// enable ADC interrupts
+  49               		.loc 1 42 0
+  50 0016 339A      		sbi 0x6,3
+  44:a2d_2013.c    **** 	a2dCompleteFlag = FALSE;		// clear conversion complete flag
+  51               		.loc 1 44 0
+  52 0018 1092 0000 		sts a2dCompleteFlag,__zero_reg__
+  45:a2d_2013.c    **** 	sei();							// turn on interrupts (if not already on)
+  53               		.loc 1 45 0
+  54               	/* #APP */
+  55               	 ;  45 "a2d_2013.c" 1
+  56 001c 7894      		sei
+  57               	 ;  0 "" 2
+  58               	/* #NOAPP */
+  59 001e 0895      		ret
+  60               		.cfi_endproc
+  61               	.LFE0:
+  63               	.global	a2dOff
+  65               	a2dOff:
+  66               	.LFB1:
+  50:a2d_2013.c    **** {
+  67               		.loc 1 50 0
+  68               		.cfi_startproc
+  69               	/* prologue: function */
+  70               	/* frame size = 0 */
+  71               	/* stack size = 0 */
+  72               	.L__stack_usage = 0
+  51:a2d_2013.c    **** 	cbi(ADCSR, ADIE);				// disable ADC interrupts
+  73               		.loc 1 51 0
+  74 0020 3398      		cbi 0x6,3
+  52:a2d_2013.c    **** 	cbi(ADCSR, ADEN);				// disable ADC (turn off ADC power)
+  75               		.loc 1 52 0
+  76 0022 3798      		cbi 0x6,7
+  77 0024 0895      		ret
+  78               		.cfi_endproc
+  79               	.LFE1:
+  81               	.global	a2dSetPrescaler
+  83               	a2dSetPrescaler:
+  84               	.LFB2:
+  57:a2d_2013.c    **** {
+  85               		.loc 1 57 0
+  86               		.cfi_startproc
+  87               	.LVL2:
+  88               	/* prologue: function */
+  89               	/* frame size = 0 */
+  90               	/* stack size = 0 */
+  91               	.L__stack_usage = 0
+  58:a2d_2013.c    **** 	outb(ADCSR, ((inb(ADCSR) & ~ADC_PRESCALE_MASK) | prescale));
+  92               		.loc 1 58 0
+  93 0026 96B1      		in r25,0x6
+  94 0028 987F      		andi r25,lo8(-8)
+  95 002a 982B      		or r25,r24
+  96 002c 96B9      		out 0x6,r25
+  97 002e 0895      		ret
+  98               		.cfi_endproc
+  99               	.LFE2:
+ 101               	.global	a2dSetReference
+ 103               	a2dSetReference:
+ 104               	.LFB3:
+  63:a2d_2013.c    **** {
+ 105               		.loc 1 63 0
+ 106               		.cfi_startproc
+ 107               	.LVL3:
+ 108               	/* prologue: function */
+ 109               	/* frame size = 0 */
+ 110               	/* stack size = 0 */
+ 111               	.L__stack_usage = 0
+ 112               		.loc 1 64 0
+ 113 0030 27B1      		in r18,0x7
+ 114 0032 30E4      		ldi r19,lo8(64)
+ 115 0034 839F      		mul r24,r19
+ 116 0036 C001      		movw r24,r0
+ 117 0038 1124      		clr __zero_reg__
+ 118               	.LVL4:
+ 119 003a 2F73      		andi r18,lo8(63)
+ 120 003c 282B      		or r18,r24
+ 121 003e 27B9      		out 0x7,r18
+ 122 0040 0895      		ret
+ 123               		.cfi_endproc
+ 124               	.LFE3:
+ 126               	.global	a2dSetChannel
+ 128               	a2dSetChannel:
+ 129               	.LFB4:
+  65:a2d_2013.c    **** }
+  66:a2d_2013.c    **** 
+  67:a2d_2013.c    **** // sets the a2d input channel
+  68:a2d_2013.c    **** void a2dSetChannel(unsigned char ch)
+  69:a2d_2013.c    **** {
+ 130               		.loc 1 69 0
+ 131               		.cfi_startproc
+ 132               	.LVL5:
+ 133               	/* prologue: function */
+ 134               	/* frame size = 0 */
+ 135               	/* stack size = 0 */
+ 136               	.L__stack_usage = 0
+  70:a2d_2013.c    **** 	outb(ADMUX, (inb(ADMUX) & ~ADC_MUX_MASK) | (ch & ADC_MUX_MASK));	// set channel
+ 137               		.loc 1 70 0
+ 138 0042 97B1      		in r25,0x7
+ 139 0044 8F71      		andi r24,lo8(31)
+ 140               	.LVL6:
+ 141 0046 907E      		andi r25,lo8(-32)
+ 142 0048 892B      		or r24,r25
+ 143 004a 87B9      		out 0x7,r24
+ 144 004c 0895      		ret
+ 145               		.cfi_endproc
+ 146               	.LFE4:
+ 148               	.global	a2dStartConvert
+ 150               	a2dStartConvert:
+ 151               	.LFB5:
+  71:a2d_2013.c    **** }
+  72:a2d_2013.c    **** 
+  73:a2d_2013.c    **** // start a conversion on the current a2d input channel
+  74:a2d_2013.c    **** void a2dStartConvert(void)
+  75:a2d_2013.c    **** {
+ 152               		.loc 1 75 0
+ 153               		.cfi_startproc
+ 154               	/* prologue: function */
+ 155               	/* frame size = 0 */
+ 156               	/* stack size = 0 */
+ 157               	.L__stack_usage = 0
+  76:a2d_2013.c    **** 	sbi(ADCSR, ADIF);	// clear hardware "conversion complete" flag 
+ 158               		.loc 1 76 0
+ 159 004e 349A      		sbi 0x6,4
+  77:a2d_2013.c    **** 	sbi(ADCSR, ADSC);	// start conversion
+ 160               		.loc 1 77 0
+ 161 0050 369A      		sbi 0x6,6
+ 162 0052 0895      		ret
+ 163               		.cfi_endproc
+ 164               	.LFE5:
+ 166               	.global	a2dIsComplete
+ 168               	a2dIsComplete:
+ 169               	.LFB6:
+  78:a2d_2013.c    **** }
+  79:a2d_2013.c    **** 
+  80:a2d_2013.c    **** // return TRUE if conversion is complete
+  81:a2d_2013.c    **** u08 a2dIsComplete(void)
+  82:a2d_2013.c    **** {
+ 170               		.loc 1 82 0
+ 171               		.cfi_startproc
+ 172               	/* prologue: function */
+ 173               	/* frame size = 0 */
+ 174               	/* stack size = 0 */
+ 175               	.L__stack_usage = 0
+  83:a2d_2013.c    **** 	return bit_is_set(ADCSR, ADSC);
+ 176               		.loc 1 83 0
+ 177 0054 86B1      		in r24,0x6
+  84:a2d_2013.c    **** }
+ 178               		.loc 1 84 0
+ 179 0056 8074      		andi r24,lo8(64)
+ 180 0058 0895      		ret
+ 181               		.cfi_endproc
+ 182               	.LFE6:
+ 184               	.global	a2dConvert10bit
+ 186               	a2dConvert10bit:
+ 187               	.LFB7:
+  85:a2d_2013.c    **** 
+  86:a2d_2013.c    **** // Perform a 10-bit conversion
+  87:a2d_2013.c    **** // starts conversion, waits until conversion is done, and returns result
+  88:a2d_2013.c    **** unsigned short a2dConvert10bit(unsigned char ch)
+  89:a2d_2013.c    **** {
+ 188               		.loc 1 89 0
+ 189               		.cfi_startproc
+ 190               	.LVL7:
+ 191               	/* prologue: function */
+ 192               	/* frame size = 0 */
+ 193               	/* stack size = 0 */
+ 194               	.L__stack_usage = 0
+  90:a2d_2013.c    **** 	a2dCompleteFlag = FALSE;				// clear conversion complete flag
+ 195               		.loc 1 90 0
+ 196 005a 1092 0000 		sts a2dCompleteFlag,__zero_reg__
+  91:a2d_2013.c    **** 	outb(ADMUX, (inb(ADMUX) & ~ADC_MUX_MASK) | (ch & ADC_MUX_MASK));	// set channel
+ 197               		.loc 1 91 0
+ 198 005e 97B1      		in r25,0x7
+ 199 0060 8F71      		andi r24,lo8(31)
+ 200               	.LVL8:
+ 201 0062 907E      		andi r25,lo8(-32)
+ 202 0064 892B      		or r24,r25
+ 203 0066 87B9      		out 0x7,r24
+  92:a2d_2013.c    **** 	sbi(ADCSR, ADIF);						// clear hardware "conversion complete" flag 
+ 204               		.loc 1 92 0
+ 205 0068 349A      		sbi 0x6,4
+  93:a2d_2013.c    **** 	sbi(ADCSR, ADSC);						// start conversion
+ 206               		.loc 1 93 0
+ 207 006a 369A      		sbi 0x6,6
+ 208               	.L9:
+  94:a2d_2013.c    **** 	//while(!a2dCompleteFlag);				// wait until conversion complete
+  95:a2d_2013.c    **** 	//while( bit_is_clear(ADCSR, ADIF) );		// wait until conversion complete
+  96:a2d_2013.c    **** 	while( bit_is_set(ADCSR, ADSC) );		// wait until conversion complete
+ 209               		.loc 1 96 0 discriminator 1
+ 210 006c 3699      		sbic 0x6,6
+ 211 006e 00C0      		rjmp .L9
+  97:a2d_2013.c    **** 
+  98:a2d_2013.c    **** 	// CAUTION: MUST READ ADCL BEFORE ADCH!!!
+  99:a2d_2013.c    **** 	return (inb(ADCL) | (inb(ADCH)<<8));	// read ADC (full 10 bits);
+ 212               		.loc 1 99 0
+ 213 0070 24B1      		in r18,0x4
+ 214 0072 35B1      		in r19,0x5
+ 215 0074 932F      		mov r25,r19
+ 216 0076 80E0      		ldi r24,0
+ 217 0078 AC01      		movw r20,r24
+ 218 007a 422B      		or r20,r18
+ 219 007c 9A01      		movw r18,r20
+ 100:a2d_2013.c    **** }
+ 220               		.loc 1 100 0
+ 221 007e C901      		movw r24,r18
+ 222 0080 0895      		ret
+ 223               		.cfi_endproc
+ 224               	.LFE7:
+ 226               	.global	a2dConvert8bit
+ 228               	a2dConvert8bit:
+ 229               	.LFB8:
+ 101:a2d_2013.c    **** 
+ 102:a2d_2013.c    **** // Perform a 8-bit conversion.
+ 103:a2d_2013.c    **** // starts conversion, waits until conversion is done, and returns result
+ 104:a2d_2013.c    **** unsigned char a2dConvert8bit(unsigned char ch)
+ 105:a2d_2013.c    **** {
+ 230               		.loc 1 105 0
+ 231               		.cfi_startproc
+ 232               	.LVL9:
+ 233               	/* prologue: function */
+ 234               	/* frame size = 0 */
+ 235               	/* stack size = 0 */
+ 236               	.L__stack_usage = 0
+ 106:a2d_2013.c    **** 	// do 10-bit conversion and return highest 8 bits
+ 107:a2d_2013.c    **** 	return a2dConvert10bit(ch)>>2;			// return ADC MSB byte
+ 237               		.loc 1 107 0
+ 238 0082 00D0      		rcall a2dConvert10bit
+ 239               	.LVL10:
+ 240 0084 9695      		lsr r25
+ 241 0086 8795      		ror r24
+ 242 0088 9695      		lsr r25
+ 243 008a 8795      		ror r24
+ 108:a2d_2013.c    **** }
+ 244               		.loc 1 108 0
+ 245 008c 0895      		ret
+ 246               		.cfi_endproc
+ 247               	.LFE8:
+ 249               	.global	__vector_14
+ 251               	__vector_14:
+ 252               	.LFB9:
+ 109:a2d_2013.c    **** 
+ 110:a2d_2013.c    **** //! Interrupt handler for ADC complete interrupt.
+ 111:a2d_2013.c    **** ISR(ADC_vect)
+ 112:a2d_2013.c    **** {
+ 253               		.loc 1 112 0
+ 254               		.cfi_startproc
+ 255 008e 1F92      		push r1
+ 256               	.LCFI0:
+ 257               		.cfi_def_cfa_offset 3
+ 258               		.cfi_offset 1, -2
+ 259 0090 0F92      		push r0
+ 260               	.LCFI1:
+ 261               		.cfi_def_cfa_offset 4
+ 262               		.cfi_offset 0, -3
+ 263 0092 0FB6      		in r0,__SREG__
+ 264 0094 0F92      		push r0
+ 265 0096 1124      		clr __zero_reg__
+ 266 0098 8F93      		push r24
+ 267               	.LCFI2:
+ 268               		.cfi_def_cfa_offset 5
+ 269               		.cfi_offset 24, -4
+ 270               	/* prologue: Signal */
+ 271               	/* frame size = 0 */
+ 272               	/* stack size = 4 */
+ 273               	.L__stack_usage = 4
+ 113:a2d_2013.c    **** 	// set the a2d conversion flag to indicate "complete"
+ 114:a2d_2013.c    **** 	a2dCompleteFlag = TRUE;
+ 274               		.loc 1 114 0
+ 275 009a 8FEF      		ldi r24,lo8(-1)
+ 276 009c 8093 0000 		sts a2dCompleteFlag,r24
+ 277               	/* epilogue start */
+ 115:a2d_2013.c    **** }
+ 278               		.loc 1 115 0
+ 279 00a0 8F91      		pop r24
+ 280 00a2 0F90      		pop r0
+ 281 00a4 0FBE      		out __SREG__,r0
+ 282 00a6 0F90      		pop r0
+ 283 00a8 1F90      		pop r1
+ 284 00aa 1895      		reti
+ 285               		.cfi_endproc
+ 286               	.LFE9:
+ 288               		.comm	a2dCompleteFlag,1,1
+ 289               	.Letext0:
+ 290               		.file 2 "c:\\program files (x86)\\atmel\\atmel toolchain\\avr8 gcc\\native\\3.4.2.939\\avr8-gnu-to
+ 291               		.file 3 "avrlibtypes.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 a2d_2013.c
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:2      *ABS*:0000003e __SP_H__
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:3      *ABS*:0000003d __SP_L__
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:4      *ABS*:0000003f __SREG__
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:5      *ABS*:00000000 __tmp_reg__
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:6      *ABS*:00000001 __zero_reg__
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:12     .text:00000000 a2dInit
+                            *COM*:00000001 a2dCompleteFlag
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:65     .text:00000020 a2dOff
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:83     .text:00000026 a2dSetPrescaler
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:103    .text:00000030 a2dSetReference
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:128    .text:00000042 a2dSetChannel
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:150    .text:0000004e a2dStartConvert
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:168    .text:00000054 a2dIsComplete
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:186    .text:0000005a a2dConvert10bit
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:228    .text:00000082 a2dConvert8bit
+C:\Users\Nissanka\AppData\Local\Temp\ccrCvYPj.s:251    .text:0000008e __vector_14
+
+UNDEFINED SYMBOLS
+__do_clear_bss
