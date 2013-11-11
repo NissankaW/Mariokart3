@@ -1,0 +1,442 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>6.1</ProjectVersion>
+    <ToolchainName>com.Atmel.ARMGCC.C</ToolchainName>
+    <ProjectGuid>792bc4ed-dada-4706-ad25-d3144a3325ea</ProjectGuid>
+    <avrdevice>ATSAM4S16B</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>C</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>Mariokart</AssemblyName>
+    <Name>Mariokart</Name>
+    <RootNamespace>Mariokart</RootNamespace>
+    <ToolchainFlavour>
+    </ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <OverrideVtorValue />
+    <eraseonlaunchrule>1</eraseonlaunchrule>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <CacheFlash>true</CacheFlash>
+    <UncachedRange />
+    <BootSegment>2</BootSegment>
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.8.1" />
+        </dependencies>
+      </framework-data>
+    </AsfFrameworkConfig>
+    <AsfVersion>3.5.0</AsfVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <ArmGcc>
+        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+        <armgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>NDEBUG</Value>
+          </ListValues>
+        </armgcc.compiler.symbols.DefSymbols>
+        <armgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\sam4s\include</Value>
+          </ListValues>
+        </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
+        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+        <armgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </armgcc.linker.libraries.Libraries>
+        <armgcc.linker.libraries.LibrarySearchPaths>
+          <ListValues>
+            <Value>../cmsis/linkerScripts</Value>
+          </ListValues>
+        </armgcc.linker.libraries.LibrarySearchPaths>
+        <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+        <armgcc.linker.miscellaneous.LinkerFlags>-Tsam4s16b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+        <armgcc.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\sam4s\include</Value>
+          </ListValues>
+        </armgcc.assembler.general.IncludePaths>
+        <armgcc.preprocessingassembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\sam4s\include</Value>
+          </ListValues>
+        </armgcc.preprocessingassembler.general.IncludePaths>
+      </ArmGcc>
+    </ToolchainSettings>
+    <UsesExternalMakeFile>True</UsesExternalMakeFile>
+    <OutputDirectory />
+    <ExternalMakeFilePath>Makefile</ExternalMakeFilePath>
+    <BuildTarget>all</BuildTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <ArmGcc>
+        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+        <armgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </armgcc.compiler.symbols.DefSymbols>
+        <armgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\sam4s\include</Value>
+          </ListValues>
+        </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
+        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+        <armgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </armgcc.linker.libraries.Libraries>
+        <armgcc.linker.libraries.LibrarySearchPaths>
+          <ListValues>
+            <Value>../cmsis/linkerScripts</Value>
+          </ListValues>
+        </armgcc.linker.libraries.LibrarySearchPaths>
+        <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+        <armgcc.linker.miscellaneous.LinkerFlags>-Tsam4s16b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+        <armgcc.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\sam4s\include</Value>
+          </ListValues>
+        </armgcc.assembler.general.IncludePaths>
+        <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
+        <armgcc.preprocessingassembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+            <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\sam4s\include</Value>
+          </ListValues>
+        </armgcc.preprocessingassembler.general.IncludePaths>
+        <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
+      </ArmGcc>
+    </ToolchainSettings>
+    <UsesExternalMakeFile>True</UsesExternalMakeFile>
+    <OutputDirectory />
+    <ExternalMakeFilePath>Makefile</ExternalMakeFilePath>
+    <BuildTarget>all</BuildTarget>
+  </PropertyGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+  <ItemGroup>
+    <Folder Include="lib" />
+    <Folder Include="lib\utility" />
+    <Compile Include="lib\utility\bmp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\hamming.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\led.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\math.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\pid.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\rand.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\stdio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\string.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\trace.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\video.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\wav.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\utility\interrupts.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\drivers" />
+    <Folder Include="lib\drivers\async" />
+    <Compile Include="lib\drivers\async\async.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\drivers\protocol" />
+    <Compile Include="lib\drivers\protocol\proto_msg_buff.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\drivers\protocol\protocol.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\drivers\twi" />
+    <Compile Include="lib\drivers\twi\twid.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\components" />
+    <Compile Include="lib\components\actuator_driver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\brake_driver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\char_display.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\debug.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\encoder.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\potentiometer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\speed_sensor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\components\switches.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals" />
+    <Folder Include="lib\peripherals\adc" />
+    <Compile Include="lib\peripherals\adc\adc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\aic" />
+    <Compile Include="lib\peripherals\aic\aic.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\better_can" />
+    <Compile Include="lib\peripherals\better_can\can.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\can" />
+    <Compile Include="lib\peripherals\can\can.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\dbgu" />
+    <Compile Include="lib\peripherals\dbgu\dbgu.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\efc" />
+    <Compile Include="lib\peripherals\efc\efc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\emac" />
+    <Compile Include="lib\peripherals\emac\emac.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\irq" />
+    <Compile Include="lib\peripherals\irq\irq.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\pio" />
+    <Compile Include="lib\peripherals\pio\pio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\peripherals\pio\pio_it.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\pit" />
+    <Compile Include="lib\peripherals\pit\pit.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\pmc" />
+    <Compile Include="lib\peripherals\pmc\pmc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\pwmc" />
+    <Compile Include="lib\peripherals\pwmc\pwmc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\rstc" />
+    <Compile Include="lib\peripherals\rstc\rstc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\rtt" />
+    <Compile Include="lib\peripherals\rtt\rtt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\spi" />
+    <Compile Include="lib\peripherals\spi\spi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\ssc" />
+    <Compile Include="lib\peripherals\ssc\ssc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\tc" />
+    <Compile Include="lib\peripherals\tc\tc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\tdes" />
+    <Compile Include="lib\peripherals\tdes\tdes.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\twi" />
+    <Compile Include="lib\peripherals\twi\twi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\usart" />
+    <Compile Include="lib\peripherals\usart\usart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\peripherals\wdt" />
+    <Compile Include="lib\peripherals\wdt\wdt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\usb" />
+    <Folder Include="lib\usb\common" />
+    <Folder Include="lib\usb\common\cdc" />
+    <Compile Include="lib\usb\common\cdc\CDCLineCoding.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\cdc\CDCSetControlLineStateRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\usb\common\core" />
+    <Compile Include="lib\usb\common\core\USBConfigurationDescriptor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBEndpointDescriptor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBFeatureRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBGenericDescriptor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBGenericRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBGetDescriptorRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBInterfaceRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBSetAddressRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\common\core\USBSetConfigurationRequest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\usb\device" />
+    <Folder Include="lib\usb\device\cdc-serial" />
+    <Compile Include="lib\usb\device\cdc-serial\CDCDSerialDriver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\cdc-serial\CDCDSerialDriverDescriptors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\usb\device\core" />
+    <Compile Include="lib\usb\device\core\USBD_UDP.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDCallbacks_Initialized.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDCallbacks_RequestReceived.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDCallbacks_Reset.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDCallbacks_Resumed.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDCallbacks_Suspended.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDDriver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDDriverCb_CfgChanged.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\usb\device\core\USBDDriverCb_IfSettingChanged.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="lib\boards" />
+    <Folder Include="lib\boards\mariokartv1" />
+    <Compile Include="lib\boards\mariokartv1\board_memories.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\boards\mariokartv1\board_lowlevel.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\boards\mariokartv1\board_powermode.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lib\boards\mariokartv1\board_cstartup.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="src" />
+    <Folder Include="src\steering" />
+    <Compile Include="src\steering\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="src\brake" />
+    <Compile Include="src\brake\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="src\comms" />
+    <Compile Include="src\comms\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="src\motor" />
+    <Compile Include="src\motor\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Folder Include="src\sensor" />
+    <Compile Include="src\sensor\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,5 @@
+This project was created purely for the ease of using Atmel Studio to navigate to function implementations etc in other documents associated with the project. 
+
+There is probably a better way of doing this!!
+
+Atmel Studio no longer supports SAM7s so the project is created under a SAM4 -> this project CANNOT be used to load code onto the boards/ live debugging.

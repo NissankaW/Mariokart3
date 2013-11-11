@@ -1,0 +1,21 @@
+﻿  test2.cpp
+test2.cpp(72): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+test2.cpp(76): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+test2.cpp(77): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+test2.cpp(112): warning C4172: returning address of local variable or temporary
+test2.cpp(122): warning C4172: returning address of local variable or temporary
+test2.cpp(170): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+test2.cpp(199): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+test2.cpp(200): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+test2.cpp(201): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+test2.cpp(262): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(357) : see declaration of 'sprintf'
+test2.cpp(263): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(357) : see declaration of 'sprintf'
+test2.cpp(269): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(357) : see declaration of 'sprintf'
+test2.cpp(270): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(357) : see declaration of 'sprintf'
+  Generating code
+  Finished generating code
+  OpenCVTest2.vcxproj -> C:\Users\Nissanka\Documents\Uni\3rd_pro\Project_Autonomous_Go_Kart\Mariokart2\Software\Computer_Vision\code_data\OpenCVTest2\Release\OpenCVTest2.exe

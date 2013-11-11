@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( Checker )
+find_package( OpenCV REQUIRED )
+add_executable( Checker test2.cpp )
+target_link_libraries( Checker ${OpenCV_LIBS} )
