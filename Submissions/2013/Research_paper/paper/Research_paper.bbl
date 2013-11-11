@@ -1,0 +1,41 @@
+\begin{thebibliography}{1}
+
+\bibitem{Jenkins_2011}
+H.~Jenkins, ``Embedded hardware design for an autonomous electric vehicle.''
+  University of Canterbury, 2011.
+
+\bibitem{Looman_2011}
+W.~G. Looman, ``Software engineering practices in the mariokart system.''
+  University of Canterbury, 2011.
+
+\bibitem{Richards_2011}
+S.~Richards, ``Safety by design for the mariokart system.'' University of
+  Canterbury, 2011.
+
+\bibitem{taylor_2011}
+Z.~Taylor, ``Development of a marker tracking system for use in the mariokart
+  system.'' University of Canterbury, 2011.
+
+\bibitem{Wigley_2012}
+M.~Wigley, ``Fly-by-wire go-kart,'' engineering report, University of
+  Canterbury, 2012.
+
+\bibitem{ball_2002}
+S.~Ball, {\em Embedded microprocessor systems: real world design}.
+\newblock Newnes, 2002.
+
+\bibitem{ball_1998_debugging}
+S.~Ball, {\em Debugging embedded microprocessor systems}.
+\newblock Newnes, 1998.
+
+\bibitem{grounding_practical}
+G.~Vijayaraghavan, M.~Brown, and M.~Barnes, {\em Practical grounding, bonding,
+  shielding and surge protection}.
+\newblock Butterworth-Heinemann, 2004.
+
+\bibitem{patent}
+D.~L. Schantz and J.~L. Munro, ``Fault detection circuit for sensing leakage
+  currents between power source and chassis,'' Jan.~2 1996.
+\newblock US Patent 5,481,194.
+
+\end{thebibliography}

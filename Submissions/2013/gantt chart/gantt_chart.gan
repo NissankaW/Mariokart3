@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Autonomous Go-kart" company="UOC" webLink="" view-date="2013-03-01" view-index="0" gantt-divider-location="353" resource-divider-location="300" version="2.0" locale="en_NZ">
+    <description><![CDATA[Adding a CANBus system to an ECE department go-kart for drive-by-wire and autonomous control]]></description>
+    <view zooming-state="default:8" id="gantt-chart">
+        <field id="tpd3" name="Name" width="56" order="0"/>
+        <field id="tpd4" name="Begin date" width="21" order="1"/>
+        <field id="tpd5" name="End date" width="21" order="2"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="50" order="0"/>
+        <field id="1" name="Default role" width="49" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <calendar id="1" name="default">
+                <default-week sun="0" mon="0" tue="0" wed="0" thu="0" fri="0" sat="0"/>
+                <only-show-weekends value="true"/>
+                <overriden-day-types/>
+                <days/>
+            </calendar>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="6" name="Preparation" color="#8cb6ce" meeting="false" start="2013-03-04" duration="64" complete="0" expand="true">
+            <task id="0" name="Research and planning" color="#8cb6ce" meeting="false" start="2013-03-04" duration="64" complete="0" expand="true"/>
+            <task id="8" name="Receive hardware" color="#000000" meeting="true" start="2013-03-12" duration="0" complete="0" expand="true">
+                <depend id="11" type="2" difference="0" hardness="Strong"/>
+                <depend id="25" type="2" difference="0" hardness="Rubber"/>
+                <depend id="27" type="2" difference="0" hardness="Rubber"/>
+            </task>
+            <task id="11" name="Inspect kart &amp; previous work" color="#8cb6ce" meeting="false" start="2013-03-12" duration="53" complete="0" expand="true"/>
+        </task>
+        <task id="3" name="Deadline: Specification report" color="#333333" meeting="true" start="2013-05-06" duration="0" complete="0" expand="true"/>
+        <task id="38" name="Development Setup" color="#8cb6ce" meeting="false" start="2013-04-15" duration="30" complete="0" expand="true">
+            <task id="25" name="Test hardware assembly" color="#8cb6ce" meeting="false" start="2013-04-15" duration="3" complete="0" expand="true">
+                <depend id="26" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="27" name="Setup software platform" color="#8cb6ce" meeting="false" start="2013-04-16" duration="7" complete="0" expand="true">
+                <depend id="28" type="2" difference="0" hardness="Strong"/>
+                <depend id="29" type="2" difference="5" hardness="Rubber"/>
+            </task>
+            <task id="26" name="New brake bracket" color="#8cb6ce" meeting="false" start="2013-04-18" duration="15" complete="0" expand="true">
+                <depend id="43" type="2" difference="0" hardness="Rubber"/>
+            </task>
+            <task id="28" name="Run last year's bench setup" color="#8cb6ce" meeting="false" start="2013-04-23" duration="2" complete="0" expand="true"/>
+            <task id="29" name="Student board" color="#8cb6ce" meeting="false" start="2013-05-01" duration="14" complete="0" expand="true">
+                <depend id="43" type="2" difference="0" hardness="Rubber"/>
+            </task>
+        </task>
+        <task id="39" name="Go-kart integration" color="#8cb6ce" meeting="false" start="2013-06-01" duration="35" complete="0" expand="true">
+            <task id="43" name="Test system modules" color="#8cb6ce" meeting="false" start="2013-06-01" duration="9" complete="0" expand="true">
+                <depend id="44" type="2" difference="13" hardness="Rubber"/>
+            </task>
+            <task id="44" name="Test laptop comms" color="#8cb6ce" meeting="false" start="2013-06-26" duration="3" complete="0" expand="true">
+                <depend id="45" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="45" name="Hardware fitting on kart" color="#8cb6ce" meeting="false" start="2013-06-29" duration="3" complete="0" expand="true">
+                <depend id="46" type="2" difference="0" hardness="Strong"/>
+                <depend id="50" type="2" difference="0" hardness="Rubber"/>
+                <depend id="54" type="2" difference="0" hardness="Rubber"/>
+            </task>
+            <task id="46" name="Actuator calibration" color="#8cb6ce" meeting="false" start="2013-07-02" duration="4" complete="0" expand="true">
+                <depend id="49" type="2" difference="0" hardness="Strong"/>
+            </task>
+        </task>
+        <task id="48" name="Drive-by-wire" color="#8cb6ce" meeting="false" start="2013-07-02" duration="12" complete="0" expand="true">
+            <task id="49" name="Steering, stop, go" color="#8cb6ce" meeting="false" start="2013-07-06" duration="4" complete="0" expand="true">
+                <depend id="55" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="50" name="Speed sensing" color="#8cb6ce" meeting="false" start="2013-07-02" duration="3" complete="0" expand="true">
+                <depend id="51" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="51" name="Motion control" color="#8cb6ce" meeting="false" start="2013-07-05" duration="5" complete="0" expand="true">
+                <depend id="67" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="67" name="Testing and bug-fixing" color="#8cb6ce" meeting="false" start="2013-07-10" duration="4" complete="0" expand="true">
+                <depend id="47" type="2" difference="0" hardness="Strong"/>
+            </task>
+        </task>
+        <task id="40" name="Autonomous movements" color="#8cb6ce" meeting="false" start="2013-07-14" duration="21" complete="0" expand="true">
+            <task id="47" name="Forward turning algorithm" color="#8cb6ce" meeting="false" start="2013-07-14" duration="7" complete="0" expand="true">
+                <depend id="52" type="2" difference="0" hardness="Strong"/>
+                <depend id="56" type="2" difference="0" hardness="Rubber"/>
+            </task>
+            <task id="52" name="Timed algorithm movement" color="#8cb6ce" meeting="false" start="2013-07-21" duration="7" complete="0" expand="true">
+                <depend id="66" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="66" name="Testing and bug-fixing" color="#8cb6ce" meeting="false" start="2013-07-28" duration="7" complete="0" expand="true"/>
+        </task>
+        <task id="41" name="Camera Integration" color="#8cb6ce" meeting="false" start="2013-07-02" duration="33" complete="0" expand="true">
+            <task id="54" name="Mount cam &amp; target detection" color="#8cb6ce" meeting="false" start="2013-07-02" duration="1" complete="0" expand="true">
+                <depend id="55" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="55" name="Steering track target" color="#8cb6ce" meeting="false" start="2013-07-10" duration="3" complete="0" expand="true">
+                <depend id="56" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="56" name="Maintain target destance" color="#8cb6ce" meeting="false" start="2013-07-21" duration="7" complete="0" expand="true">
+                <depend id="57" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="57" name="Following target" color="#8cb6ce" meeting="false" start="2013-07-28" duration="7" complete="0" expand="true">
+                <depend id="60" type="2" difference="0" hardness="Strong"/>
+                <depend id="80" type="2" difference="0" hardness="Rubber"/>
+            </task>
+        </task>
+        <task id="60" name="Testing and bug-fixing" color="#8cb6ce" meeting="false" start="2013-08-04" duration="13" complete="0" expand="true"/>
+        <task id="16" name="Deadline: Inspection" color="#000000" meeting="true" start="2013-08-16" duration="0" complete="0" expand="true"/>
+        <task id="80" name="Engineering Report" color="#8cb6ce" meeting="false" start="2013-08-04" duration="44" complete="0" expand="true"/>
+        <task id="19" name="Deadline: Enginering Report" color="#000000" meeting="true" start="2013-09-16" duration="0" complete="0" expand="true"/>
+        <task id="85" name="Presentation preparation" color="#8cb6ce" meeting="false" start="2013-09-14" duration="14" complete="0" expand="true"/>
+        <task id="23" name="Deadline: Oral presentation" color="#000000" meeting="true" start="2013-09-27" duration="0" complete="0" expand="true"/>
+        <task id="87" name="Research Paper" color="#8cb6ce" meeting="false" start="2013-09-17" duration="21" complete="0" expand="true"/>
+        <task id="21" name="Deadline: Reseach paper" color="#000000" meeting="true" start="2013-10-07" duration="0" complete="0" expand="true"/>
+    </tasks>
+    <resources>
+        <resource id="0" name="Nissanka Weerekoon" function="Default:1" contacts="" phone=""/>
+    </resources>
+    <allocations/>
+    <vacations/>
+    <taskdisplaycolumns>
+        <displaycolumn property-id="tpd2" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd7" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd8" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd6" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd10" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd11" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd9" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd1" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd0" order="-1" width="75" visible="false"/>
+        <displaycolumn property-id="tpd3" order="0" width="190" visible="true"/>
+        <displaycolumn property-id="tpd4" order="1" width="72" visible="true"/>
+        <displaycolumn property-id="tpd5" order="2" width="72" visible="true"/>
+    </taskdisplaycolumns>
+    <previous>
+        <previous-tasks name="e">
+            <previous-task id="0" start="2013-03-04" duration="64" meeting="false" super="false"/>
+        </previous-tasks>
+    </previous>
+    <roles roleset-name="Default"/>
+</project>

@@ -1,0 +1,74 @@
+% This file was created with JabRef 2.9.2.
+% Encoding: Cp1252
+
+@BOOK{ball_2002,
+  title = {Embedded microprocessor systems: real world design},
+  publisher = {Newnes},
+  year = {2002},
+  author = {Ball, Stuart}
+}
+
+@BOOK{ball_1998_debugging,
+  title = {Debugging embedded microprocessor systems},
+  publisher = {Newnes},
+  year = {1998},
+  author = {Ball, Stuart}
+}
+
+@UNPUBLISHED{Jenkins_2011,
+  author = {Jenkins, Henry},
+  title = {Embedded Hardware Design For An Autonomous Electric Vehicle},
+  note = {University of Canterbury},
+  year = {2011},
+  owner = {Nissanka},
+  timestamp = {2013.10.08}
+}
+
+@UNPUBLISHED{Looman_2011,
+  author = {William George Looman},
+  title = {Software Engineering Practices in the Mariokart System},
+  note = {University of Canterbury},
+  year = {2011},
+  owner = {Nissanka},
+  timestamp = {2013.10.08},
+  url = {https://raw.github.com/team-ramrod/mariokart/master/Documentation/ScientificReport/Wim/report.pdf}
+}
+
+@UNPUBLISHED{Richards_2011,
+  author = {Simon Richards},
+  title = {Safety by Design for the Mariokart System},
+  note = {University of Canterbury},
+  year = {2011},
+  owner = {Nissanka},
+  timestamp = {2013.10.08},
+  url = {https://raw.github.com/team-ramrod/mariokart/master/Documentation/ScientificReport/Simon/report.pdf}
+}
+
+@UNPUBLISHED{Taylor_2011,
+  author = {Zachary Taylor},
+  title = {Development of a Marker Tracking System for use in the Mariokart
+	System},
+  note = {University of Canterbury},
+  year = {2011},
+  owner = {Nissanka},
+  timestamp = {2013.10.08},
+  url = {https://raw.github.com/team-ramrod/mariokart/master/Documentation/ScientificReport/Zac/report.pdf}
+}
+
+@BOOK{grounding_practical,
+  title = {Practical grounding, bonding, shielding and surge protection},
+  publisher = {Butterworth-Heinemann},
+  year = {2004},
+  author = {Vijayaraghavan, G and Brown, Mark and Barnes, Malcolm}
+}
+
+@TECHREPORT{Wigley_2012,
+  author = {Wigley, M.},
+  title = {Fly-by-wire Go-kart},
+  institution = {University of Canterbury},
+  year = {2012},
+  type = {Engineering Report},
+  owner = {Nissanka},
+  timestamp = {2013.10.08}
+}
+

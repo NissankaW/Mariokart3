@@ -1,0 +1,15 @@
+		Autonomous Go-kart Project
+
+
+
+
+2012 Github
+https://github.com/NissankaW/Mariokart2
+this is just an unedited for from Matt Wigley's github project
+
+
+2013 Github
+https://github.com/NissankaW/Mariokart3
+
+2013 svn
+https://eng-svn.canterbury.ac.nz/groups/mariokart
